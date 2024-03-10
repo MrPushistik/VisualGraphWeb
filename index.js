@@ -750,7 +750,7 @@ let tools = [
 
                         if (visited[j]) continue;
 
-                        if (matrix[curr][j] !== undefined){
+                        if (matrix[curr][j] > 0){
 
                             painted.push(j);
 
