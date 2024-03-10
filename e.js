@@ -3,12 +3,13 @@ class E {
         this.v1 = v1;
         this.v2 = v2;
         this.value = value;
+        this.desc = value;
         this.elem = this.createEdge(v1, v2, Colors.GREEN, value);
     }
 
-    setValue(value){
-        this.value = value;
-        this.elem.querySelector(".l-text").textContent = value;
+    setDesc(desc){
+        this.desc = desc;
+        this.elem.querySelector(".l-text").textContent = desc;
     }
 
     setColor(color){

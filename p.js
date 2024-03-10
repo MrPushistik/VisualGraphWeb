@@ -3,6 +3,7 @@ class P {
         this.v1 = v1;
         this.v2 = v2;
         this.value = value; 
+        this.desc = value;
         this.elem = this.createPath(v1, v2, Colors.GREEN, value);
     }
 
@@ -11,9 +12,9 @@ class P {
         this.elem.setAttribute("stroke", color.stroke);
     }
 
-    setValue(value){
-        this.value = value;
-        this.elem.querySelector(".p-text").textContent = value;
+    setDesc(desc){
+        this.desc = desc;
+        this.elem.querySelector(".l-text").textContent = desc;
     }
 
     createPath(v1, v2, color, text){
@@ -97,7 +98,7 @@ class P {
         }
 
         elem.ondblclick = (e) => {
-            
+
             if (isAction) return;
 
             e.preventDefault();

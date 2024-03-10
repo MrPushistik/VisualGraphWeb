@@ -894,10 +894,10 @@ let tools = [
                     for (let j = 0; j < currGraph.Vs.length; j++){
                         elem = edgeAccess[i][j];
                         if (elem instanceof E){
-                            elem.setValue("←" + matrix[i][j] + "  " + matrix[i][j] + "→");
+                            elem.setDesc("←" + matrix[i][j] + "  " + matrix[i][j] + "→");
                         }
                         else if (elem instanceof P){
-                            elem.setValue("←0  " + matrix[i][j] + "→");
+                            elem.setDesc("←0  " + matrix[i][j] + "→");
                         }
                     }
                 }
@@ -1004,9 +1004,9 @@ let tools = [
                         let edgeB = edgeAccess[i][parent[i]]; 
                         
                         if (!edgeA) 
-                            toChange3.push(new EdgeSegment(edgeB, null, null, "←"+matrix[parent[i]][i]+"  "+matrix[i][parent[i]]+"→",edgeB.value));
+                            toChange3.push(new EdgeSegment(edgeB, null, null, "←"+matrix[parent[i]][i]+"  "+matrix[i][parent[i]]+"→",edgeB.desc));
                         else
-                            toChange3.push(new EdgeSegment(edgeA, null, null, "←"+matrix[i][parent[i]]+"  "+matrix[parent[i]][i]+"→",edgeA.value));
+                            toChange3.push(new EdgeSegment(edgeA, null, null, "←"+matrix[i][parent[i]]+"  "+matrix[parent[i]][i]+"→",edgeA.desc));
                     }
 
                     after = "Уменьшаем прямую пропускную способность на " + min + ". Увеличиваем обратную пропускную способность на " + min + ".";
