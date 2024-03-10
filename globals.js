@@ -37,7 +37,7 @@ const weightWindow = function (EorP) {
     }
 
     form.onsubmit = (e) => {
-        
+
         e.preventDefault();
 
         if(input.value){
@@ -45,6 +45,28 @@ const weightWindow = function (EorP) {
             EorP.setDesc(Number(input.value));
         }
         
+        form.remove();
+    }
+
+    document.body.append(form);
+}
+
+
+const warnWindow = function (text) {
+
+    let form  = document.createElement("div");
+    form.className = "form-wrap";
+    form.innerHTML = 
+    `
+        <form class="warn-form">
+            <p class="form-title">${text}</p>
+            <button type="submit" class="submit">Ок</button>
+        </form>
+    `;
+
+    form.onsubmit = (e) => {
+        
+        e.preventDefault();
         form.remove();
     }
 
