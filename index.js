@@ -1340,3 +1340,5 @@ document.querySelector(".finish").onclick = () => {
 
     isAction = false;
 }
+
+document.querySelectorAll(".tool")[0].click();

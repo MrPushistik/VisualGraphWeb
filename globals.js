@@ -25,7 +25,7 @@ const weightWindow = function (EorP) {
     `
         <form class="weight-form">
             <label class="form-title" for="weight">${EorP instanceof E ? "Вес Ребра" : "Вес Дуги"}</label>
-            <input id="weight" class="input-number" type="number" value="${EorP.value}">
+            <input id="weight" class="input-number" type="number" min="1" value="${EorP.value}">
             <button type="submit" class="submit">Ок</button>
         </form>
     `;
@@ -37,8 +37,14 @@ const weightWindow = function (EorP) {
     }
 
     form.onsubmit = (e) => {
+        
         e.preventDefault();
-        EorP.setValue(Number(input.value));
+
+        if(input.value){
+            EorP.value = Number(input.value);
+            EorP.setDesc(Number(input.value));
+        }
+        
         form.remove();
     }
 

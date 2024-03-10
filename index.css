@@ -106,7 +106,7 @@ body, p{
 .text-panel{
     border-top: 1px solid rgb(153, 229, 78);
     width: 100%;
-    height: 200px;
+    height: 150px;
 }
 .alert-wrap{
     margin: 10px;
@@ -213,7 +213,7 @@ body, p{
 .work-area{
     border-bottom: 1px solid rgb(153, 229, 78);
     width: 100%;
-    height: calc(100% - 270px);
+    height: calc(100% - 220px);
     padding: 10px;
 }
 #svg{
@@ -250,10 +250,11 @@ body, p{
 }
 .input-number{
     font-size: 1.25rem;
-    width: 40px;
+    width: 80px;
     height: 40px;
     border: 1px solid rgb(153, 229, 78);
     background-color: rgb(255, 255, 255);
+    text-align: center;
 }
 .submit{
     background-color: rgb(153, 229, 78);
