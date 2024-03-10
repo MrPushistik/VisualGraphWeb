@@ -517,7 +517,7 @@ let tools = [
                         let stack = new Array();
                         
                         let before = "";
-                        let after = "Добавялем выбранную вершину в стек." + getStack(stack, "push", start);
+                        let after = "Добавляем выбранную вершину в стек." + getStack(stack, "push", start);
                         player.push(
                             Step.getSteps([
                                 new VertexSegment(currGraph.Vs[start], Colors.PURPLE, Colors.YELLOW, null, null),
@@ -741,8 +741,9 @@ let tools = [
                 let edgeAccess = currGraph.getAdvancedMatrix();
 
                 let visited = new Array(currGraph.Vs.length).fill(false);
-                let d = new Array(currGraph.Vs.length).fill([Infinity, undefined]);
+                let d = new Array(currGraph.Vs.length).fill([Infinity, "?"]);
 
+                let sum = 0;
                 let curr = currGraph.Vs.indexOf(startV);
                 let next;
 
@@ -751,14 +752,14 @@ let tools = [
 
                 for(let i = 0; i < currGraph.Vs.length; i++){
                     currGraph.Vs[i].showTables();
-                    currGraph.Vs[i].setDesc("∞");
+                    currGraph.Vs[i].setDesc("? ∞");
                 }
 
                 let before = "";
-                let after = "Присваиваем стартовой вершине метку 0, остальным - ∞";
+                let after = "Присваиваем стартовой вершине метку " + currGraph.Vs[curr].name + " 0";
                 player.push(
                     Step.getSteps([
-                        new VertexSegment(currGraph.Vs[curr], null, null, "0", "∞"),
+                        new VertexSegment(currGraph.Vs[curr], null, null, currGraph.Vs[curr].name + " 0", "? ∞"),
                         new TextSegment(myAlert, after, before)
                     ])
                 );
@@ -780,42 +781,43 @@ let tools = [
 
                     for (let j = 0; j < matrix[curr].length; j++){
 
-                        if (visited[j]) continue;
+                        if (!visited[j]){
+                            if (matrix[curr][j] > 0){
 
-                        if (matrix[curr][j] > 0){
+                                painted.push(j);
 
-                            painted.push(j);
+                                if (matrix[curr][j] < d[j][0]){        
 
-                            if (matrix[curr][j] < d[j][0]){
+                                    after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " < " + (d[j][0] === Infinity ? "∞" : d[j][0]) + " => обновляем значение метки.";
+                                    player.push(
+                                        Step.getSteps([
+                                            new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, currGraph.Vs[curr].name + " " + matrix[curr][j], d[j][0] === Infinity ? d[j][1] + " ∞" : d[j][1] + " " + d[j][0]),
+                                            new EdgeSegment(edgeAccess[curr][j], Colors.PURPLE, Colors.GREEN, null, null),
+                                            new TextSegment(myAlert, after, before)
+                                        ])
+                                    );
+                                    before = after;
 
-                                after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " < " + (d[j][0] === Infinity ? "∞" : d[j][0]) + " => обновляем значение метки.";
-                                player.push(
-                                    Step.getSteps([
-                                        new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, matrix[curr][j], d[j][0] === Infinity ? "∞" : d[j][0]),
-                                        new EdgeSegment(edgeAccess[curr][j], Colors.PURPLE, Colors.GREEN, null, null),
-                                        new TextSegment(myAlert, after, before)
-                                    ])
-                                );
-                                before = after;
+                                    d[j] = [matrix[curr][j], curr];
 
-                                d[j] = [matrix[curr][j], curr];
+                                }
+                                else {
+                                    after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " >= " + (d[j][0] === Infinity ? "∞" : d[j][0]) + " => значение метки оставляем прежним.";
+                                    player.push(
+                                        Step.getSteps([
+                                            new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, null, null),
+                                            new EdgeSegment(edgeAccess[curr][j], Colors.PURPLE, Colors.GREEN, null, null),
+                                            new TextSegment(myAlert, after, before)
+                                        ])
+                                    );
+                                    before = after;
+                                }
                             }
-                            else {
-                                after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " >= " + (d[j][0] === Infinity ? "∞" : d[j][0]) + " => значение метки оставляем прежним.";
-                                player.push(
-                                    Step.getSteps([
-                                        new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, matrix[curr][j], d[j][0] === Infinity ? "∞" : d[j][0]),
-                                        new EdgeSegment(edgeAccess[curr][j], Colors.PURPLE, Colors.GREEN, null, null),
-                                        new TextSegment(myAlert, after, before)
-                                    ])
-                                );
-                                before = after;
-                            }
-                        }
 
-                        if (d[j][0] < nextMin){
-                            nextMin = d[j][0];
-                            next = j;
+                            if (d[j][0] < nextMin){
+                                nextMin = d[j][0];
+                                next = j;
+                            }
                         }
                     }
 
@@ -825,7 +827,7 @@ let tools = [
                         toChange.push(new EdgeSegment(edgeAccess[curr][painted[k]], Colors.GREEN, Colors.PURPLE, null, null))
                     }
 
-                    after = "Следующая вершина = " + currGraph.Vs[next].name + ", так как у нее наименьшее значение метки.";
+                    after = "Следующая вершина = " + currGraph.Vs[next].name + ", так как ее дешевле всего присоединить.";
                     player.push(
                         Step.getSteps(toChange.concat([
                             new VertexSegment(currGraph.Vs[curr], Colors.BLUE, Colors.YELLOW, null, null),
@@ -835,7 +837,7 @@ let tools = [
                     );
                     before = after;
 
-                    after = "Присоединим новую вершину ребром " + currGraph.Vs[d[next][1]].name + "-" + currGraph.Vs[next].name + " минимально веса = " + d[next][0];
+                    after = "Присоединим новую вершину ребром " + currGraph.Vs[curr].name + "-" + currGraph.Vs[next].name + " минимально веса = " + d[next][0];
                     player.push(
                         Step.getSteps([
                             new EdgeSegment(edgeAccess[d[next][1]][next], Colors.RED, Colors.GREEN, null, null),
@@ -844,16 +846,17 @@ let tools = [
                     );
                     before = after;
 
+                    sum += d[next][0];
                     curr = next;
                     visited[curr] = true;
                 }
 
-                let sum = 0;
-                for (let i = 0; i < d.length; i++){
-                    sum += d[i][0];
-                }
+                
+                // for (let i = 0; i < d.length; i++){
+                //     sum += d[i][0];
+                // }
 
-                after = "Минимальное оставеное дерево построено. Вес дерева = " + sum;
+                after = "Минимальное остовное дерево построено. Вес дерева = " + sum;
                 player.push(
                     Step.getSteps([
                         new VertexSegment(currGraph.Vs[curr], Colors.BLUE, Colors.YELLOW, null, null),
