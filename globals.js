@@ -15,6 +15,7 @@ const modeSwitcher = document.querySelector(".curr-mode");
 const modeElem = document.querySelector(".mode-tool");
 
 const toolPanel = document.querySelector(".stack-tool");
+let isAction = false;
 
 const weightWindow = function (EorP) {
 

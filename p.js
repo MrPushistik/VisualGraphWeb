@@ -86,6 +86,8 @@ class P {
 
         elem.onclick = () => {
 
+            if (isAction) return;
+
             if (selectedTool.name === "Вершина") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
@@ -95,6 +97,9 @@ class P {
         }
 
         elem.ondblclick = (e) => {
+            
+            if (isAction) return;
+
             e.preventDefault();
             weightWindow(this);
         }

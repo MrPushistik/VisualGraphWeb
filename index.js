@@ -1,8 +1,14 @@
 let player = new Player();
 let currGraph = new Graph();
 
+const save = () => {
+    let save = currGraph.save();
+    localStorage.setItem("G", JSON.stringify(save));
+    return save;
+}
+
 window.onunload = () => {
-    localStorage.setItem("G", JSON.stringify(currGraph.save()));
+    if (!isAction) save();
 }
 
 window.onload = () => {
@@ -28,7 +34,9 @@ let tools = [
         name: "Курсор", 
         desc: "клик левой кнопкой мыши - выделить. двойной клик левой кнопкой мыши по ребру/ дуге - изменить вес. клик правой кнопкой мыши - удалить выделенное", 
         src: "Icons/Cursor.svg", 
-        action: (e) => {console.log(currGraph.getList());}
+        action: (e) => {
+            if (isAction) return;
+        }
     },
     
     {
@@ -36,6 +44,8 @@ let tools = [
         desc: "клик левой кнопкой мыши по пустому пространству - создать вершину", 
         src: "Icons/V.svg", 
         action: (e) => {
+            if (isAction) return;
+
             if (e.target.closest(".vertex") || e.target.closest(".edge") || e.target.closest(".path") ) return;
 
             let p = getCoords(e);
@@ -50,6 +60,8 @@ let tools = [
         desc: "клик левой кнопкой мыши по первой, затем по второй вершине - создать ребро", 
         src: "Icons/E.svg",
         action: (e) => {
+
+            if (isAction) return;
 
             for(let i = 0; i < currGraph.Ps.length; i++){
                 let e = currGraph.Ps[i];
@@ -84,6 +96,8 @@ let tools = [
         src: "Icons/P.svg",
         action: (e) => {
 
+            if (isAction) return;
+
             for(let i = 0; i < currGraph.Es.length; i++){
                 let e = currGraph.Es[i];
                 if (e.v1 === lastSelected && e.v2 === currSelected || e.v2 === lastSelected && e.v1 === currSelected){
@@ -117,7 +131,10 @@ let tools = [
         action: (e) => {
             if (currSelected && currSelected instanceof V){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let start = currSelected;
                 let list = currGraph.getList();
@@ -202,7 +219,10 @@ let tools = [
         action: (e) => {
             if (currSelected && currSelected instanceof V){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let start = currSelected;
                 let list = currGraph.getList();
@@ -318,7 +338,10 @@ let tools = [
                 currSelected instanceof V && lastSelected instanceof V && 
                 lastSelected !== currSelected){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let sourceV = lastSelected;
                 let sinkV = currSelected;
@@ -479,7 +502,10 @@ let tools = [
                 if (currGraph.isEven()){
                     if (currSelected && currSelected instanceof V){
 
-                        lastSave = currGraph.save();
+                        if (isAction) return;
+                        else isAction = true;
+
+                        lastSave = save();
 
                         let startV = currSelected;
                         let start = currGraph.Vs.indexOf(startV);
@@ -597,7 +623,10 @@ let tools = [
 
             if (currSelected && currSelected instanceof V){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let startV = currSelected;
 
@@ -702,7 +731,10 @@ let tools = [
 
             if (currSelected && currSelected instanceof V){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let startV = currSelected;
                 let matrix = currGraph.getMatrix();
@@ -841,7 +873,10 @@ let tools = [
                 currSelected instanceof V && lastSelected instanceof V && 
                 lastSelected !== currSelected){
 
-                lastSave = currGraph.save();
+                if (isAction) return;
+                else isAction = true;
+
+                lastSave = save();
 
                 let sourceV = lastSelected;
                 let sinkV = currSelected;
@@ -1132,6 +1167,8 @@ let toolCreator = function(toolObj) {
         </div>
     `
     div.onclick = () => {
+        if (isAction) return;
+
         let last = document.querySelector(".selected-tool");
         if (last) last.classList.remove("selected-tool");
         div.classList.add("selected-tool");
@@ -1147,6 +1184,8 @@ let toolCreator = function(toolObj) {
 }
 
 addEventListener("click",(e) => {
+    if (isAction) return;
+
     if (selectedTool){
         if (e.target.closest("#svg")) {       
 
@@ -1162,6 +1201,8 @@ addEventListener("click",(e) => {
 
 addEventListener("contextmenu", (e) => {
     e.preventDefault();
+    if (isAction) return;
+    
     if (currSelected) {
         if (currSelected instanceof P) {
             currGraph.deleteP(currSelected);
@@ -1296,4 +1337,6 @@ document.querySelector(".finish").onclick = () => {
 
     if (player.mode === "STEP") modeElem.querySelector(".step").innerHTML = 1;
     else if (!player.isPaused) document.querySelector(".play").click();
+
+    isAction = false;
 }

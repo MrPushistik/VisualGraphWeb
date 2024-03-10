@@ -41,6 +41,8 @@ class E {
 
         elem.onclick = () => {
 
+            if (isAction) return;
+
             if (selectedTool.name === "Вершина") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
@@ -50,6 +52,8 @@ class E {
         }
 
         elem.ondblclick = (e) => {
+            if (isAction) return;
+            
             e.preventDefault();
             weightWindow(this);
         }

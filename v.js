@@ -56,14 +56,14 @@ class V {
 
         elem.onclick = () => {
 
+            if (isAction) return;
+
             if (selectedTool.name === "Вершина") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
             lastSelected = currSelected;
             currSelected = this;
             this.setColor(Colors.YELLOW);
-
-            console.log(lastSelected, currSelected)
         }
         
         return elem;
