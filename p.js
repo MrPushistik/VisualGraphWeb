@@ -31,24 +31,40 @@ class P {
         let dX21 = v2.x - v1.x;
         let dY21 = v2.y - v1.y;
         let X3, Y3;  
+        let X3txt, Y3txt;
+        let X3arr, Y3arr;
 
         if (Math.abs(dY21) < 0.1){
-            X3 = Xc
+            X3 = Xc;
             Y3 = Yc + way * h;
+
+            X3txt = X3;
+            Y3txt = Y3;
+
+            X3arr = X3;
+            Y3arr = Y3;
         }
         else{
             let dX3c = way * Math.sqrt( (h * h) / ( ((dX21 * dX21) / (dY21 * dY21)) + 1));
-            X3 = Xc + dX3c
+            X3 = Xc + dX3c;
             Y3 = - (dX21 / dY21) * dX3c + Yc;
+
+            let dX3ctxt = way * Math.sqrt( (16 * h * h / 20) / ( ((dX21 * dX21) / (dY21 * dY21)) + 1));
+            X3txt = Xc + dX3ctxt;
+            Y3txt = - (dX21 / dY21) * dX3ctxt + Yc;
+
+            let dX3carr = way * Math.sqrt( (9 * h * h / 25) / ( ((dX21 * dX21) / (dY21 * dY21)) + 1));
+            X3arr = Xc + dX3carr;
+            Y3arr = - (dX21 / dY21) * dX3carr + Yc;
         }
 
         elem.querySelector(".path").setAttribute("d", `M${v1.x} ${v1.y} Q ${X3} ${Y3} ${v2.x} ${v2.y}`);
 
-        let dX23 = v2.x - X3;
-        let dY23 = v2.y - Y3;
+        let dX23 = v2.x - X3arr;
+        let dY23 = v2.y - Y3arr;
         let b = 20;
-        let r = 25;
-        let c = 10;
+        let r = 20;
+        let c = 7;
 
         let dX24 = Math.sqrt(((b + r) * (b + r)) / (1 + (dY23 * dY23) / (dX23 * dX23)));
         let dX25 = Math.sqrt((r * r) / (1 + (dY23 * dY23) / (dX23 * dX23)));
@@ -77,11 +93,11 @@ class P {
         let k = (v1.y - v2.y) / (v1.x - v2.x);
         let a = Math.trunc(Math.atan(k) * 180 / Math.PI);
 
-        let dy = elem.querySelector(".p-text").getAttribute("font-size").replace("px","") / 4;
+        let dy = 8;
 
-        elem.querySelector(".p-text").setAttribute("x", X3);
-        elem.querySelector(".p-text").setAttribute("y", Y3 + dy);
-        elem.querySelector(".p-text").setAttribute("transform", `rotate(${a}, ${X3}, ${Y3})`);
+        elem.querySelector(".p-text").setAttribute("x", X3txt);
+        elem.querySelector(".p-text").setAttribute("y", Y3txt + dy);
+        elem.querySelector(".p-text").setAttribute("transform", `rotate(${a}, ${X3txt}, ${Y3txt})`);
         elem.querySelector(".p-text").setAttribute("text-anchor", "middle");
         elem.querySelector(".p-text").textContent = text;
 
