@@ -14,7 +14,7 @@ class P {
 
     setDesc(desc){
         this.desc = desc;
-        this.elem.querySelector(".l-text").textContent = desc;
+        this.elem.querySelector(".p-text").textContent = desc;
     }
 
     createPath(v1, v2, color, text){
