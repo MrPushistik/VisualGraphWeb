@@ -23,8 +23,11 @@ class Graph{
         for (let k = 0; k < this.Ps.length; k++)
         {
             let p = this.Ps[k];
+
+            let i = this.Vs.indexOf(p.v1);
+            let j = this.Vs.indexOf(p.v2);
     
-            res[this.Vs.indexOf(p.v1)][this.Vs.indexOf(p.v2)] = p.value;
+            res[i][j] = p.value;
         }
     
         return res;
@@ -162,9 +165,56 @@ class Graph{
 
     }
 
+    isEuler(bool){
+        if (bool){
+            let edgeAccess = this.getAdvancedMatrix();
+            for (let i = 0; i < this.Vs.length; i++){
+                let flow = 0;
+                for (let j = 0; j < this.Vs.length; j++){
+                    if (edgeAccess[i][j]) flow--;
+                    else if (edgeAccess[j][i]) flow++;
+                }
+                if (flow !== 0) return false;
+            }
+
+        }
+        else{
+            let list = this.getList();
+            for (let i = 0; i < list.length; i++){
+                if (list[i].length % 2 !== 0) return false;
+            }
+        }
+
+        return true;
+    }
+
     isConnected(){
+
+        let list = Array(this.Vs.length).fill().map(() => []);
+
+        for (let k = 0; k < this.Es.length; k++){
+
+            let e = this.Es[k];
+    
+            let i = this.Vs.indexOf(e.v1);
+            let j = this.Vs.indexOf(e.v2);
+
+            list[i].push(j);
+            list[j].push(i);
+        }
+
+        for (let k = 0; k < this.Ps.length; k++)
+        {
+            let p = this.Ps[k];
+
+            let i = this.Vs.indexOf(p.v1);
+            let j = this.Vs.indexOf(p.v2);
+    
+            list[i].push(j);
+            list[j].push(i);
+        }
+
         let start = 0;
-        let list = currGraph.getList();
 
         let queue = new Array();
         let visited = new Array(currGraph.Vs.length).fill(false);
