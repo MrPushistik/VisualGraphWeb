@@ -561,7 +561,7 @@ let tools = [
 
                                 if (list[a].length == 0) {
                                     path.push(a);
-                                    after = "У текущей вершины нет непосещенных путей до других вершин. Добавим вершину в результат.";
+                                    after = "У текущей вершины нет ребер, по которым можно попасть в другие вершины. Запоминаем вершину " + currGraph.Vs[a].name;
                                     player.push(
                                         Step.getSteps([
                                             new VertexSegment(currGraph.Vs[a], Colors.BLUE, Colors.YELLOW, null, null),
@@ -579,7 +579,7 @@ let tools = [
                                     after = "У текущей вершины есть путь в вершину " + currGraph.Vs[b].name + ". Удаляем ребро " + currGraph.Vs[a].name + "-" + currGraph.Vs[b].name;
                                     player.push(
                                         Step.getSteps([
-                                            new VertexSegment(currGraph.Vs[b], Colors.RED, Colors.GREEN, null, null),
+                                            new VertexSegment(currGraph.Vs[b], Colors.RED, stack.indexOf(b) !== -1 ? Colors.PURPLE : Colors.GREEN, null, null),
                                             new EdgeSegment(edgeAccess[a][b], Colors.GRAY, Colors.GREEN, null, null),
                                             new TextSegment(myAlert, after, before),
                                         ])
@@ -600,7 +600,7 @@ let tools = [
                                     after = "Добавляем новую вершину " + currGraph.Vs[b].name + " в стек" + getStack(stack, "push", b);
                                     player.push(
                                         Step.getSteps([
-                                            new VertexSegment(currGraph.Vs[b], Colors.PURPLE, Colors.YELLOW, null, null),
+                                            new VertexSegment(currGraph.Vs[b], Colors.PURPLE, Colors.RED, null, null),
                                             new TextSegment(myAlert, after, before),
                                         ])
                                     )
@@ -850,7 +850,8 @@ let tools = [
                                 after += currGraph.Vs[curr].name + "-" +  currGraph.Vs[start].name;
                                 player.push(
                                     Step.getSteps([
-                                        new EdgeSegment(edgeAccess[curr][start], Colors.RED, Colors.GREEN, null, null),
+                                        new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, Colors.PURPLE, null, null),
+                                        new EdgeSegment(edgeAccess[curr][start], Colors.YELLOW, Colors.GREEN, null, null),
                                         new TextSegment(myAlert, after, before)
                                     ])
                                 );
@@ -909,7 +910,7 @@ let tools = [
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[i], Colors.PURPLE, Colors.GREEN, null, null),
-                                        new EdgeSegment(edgeAccess[curr][i], Colors.RED, Colors.GREEN, null, null),
+                                        new EdgeSegment(edgeAccess[curr][i], Colors.YELLOW, Colors.GREEN, null, null),
                                         new TextSegment(myAlert, after, before),
                                     ])
                                 )
@@ -1006,7 +1007,7 @@ let tools = [
     
                             let nextMin = Infinity;
     
-                            after = "Просматриваем смежные непосещенные вершины относительно текущей вершины" + currGraph.Vs[curr].name;
+                            after = "Просматриваем смежные непосещенные вершины относительно текущей вершины " + currGraph.Vs[curr].name + ".";
                             player.push(
                                 Step.getSteps([
                                     new TextSegment(myAlert, after, before)
@@ -1064,7 +1065,7 @@ let tools = [
                                 toChange.push(new EdgeSegment(edgeAccess[curr][painted[k]], Colors.GREEN, Colors.PURPLE, null, null))
                             }
     
-                            after = "Следующая вершина = " + currGraph.Vs[next].name + ", так как ее дешевле всего присоединить.";
+                            after = "Следующая вершина " + currGraph.Vs[next].name + ", так как ее присоединение требует минимальных затрат.";
                             player.push(
                                 Step.getSteps(toChange.concat([
                                     new VertexSegment(currGraph.Vs[curr], Colors.BLUE, Colors.YELLOW, null, null),
@@ -1074,7 +1075,7 @@ let tools = [
                             );
                             before = after;
     
-                            after = "Присоединим новую вершину ребром " + currGraph.Vs[curr].name + "-" + currGraph.Vs[next].name + " минимально веса = " + d[next][0];
+                            after = "Присоединим новую вершину ребром " + currGraph.Vs[curr].name + "-" + currGraph.Vs[next].name + " минимально веса " + d[next][0] + ".";
                             player.push(
                                 Step.getSteps([
                                     new EdgeSegment(edgeAccess[d[next][1]][next], Colors.RED, Colors.GREEN, null, null),
@@ -1663,7 +1664,7 @@ modeSwitcher.onclick = () => {
         <p class="mode-tool-title">Скорость:</p>
         <div class="speed-controller">
             <button type="button" class="slower"><img src="Player/slower.svg" alt="медленнее" class="player-icon"></button>
-            <p class="speed">${player.getSpeed()}</p>
+            <p class="speed">${player.getSpeed()}c</p>
             <button type="button" class="faster"><img src="Player/faster.svg" alt="быстрее" class="player-icon"></button>
         </div>
         `;
@@ -1678,12 +1679,12 @@ modeSwitcher.onclick = () => {
 
         modeElem.querySelector(".slower").onclick = () => {
             player.slower();
-            curr.innerHTML = player.getSpeed();
+            curr.innerHTML = player.getSpeed() + "c";
         }
 
         modeElem.querySelector(".faster").onclick = () => {
             player.faster();
-            curr.innerHTML = player.getSpeed();
+            curr.innerHTML = player.getSpeed() + "c";
         }
 
         playButton.onclick = () => {
@@ -1709,21 +1710,25 @@ modeSwitcher.click();
 
 document.querySelector(".finish").onclick = () => {
     
-    currGraph = Graph.load(lastSave);
-    
     work.innerHTML = "";
-    currGraph.Ps.forEach(elem => work.appendChild(elem.elem));
-    currGraph.Es.forEach(elem => work.appendChild(elem.elem));
-    currGraph.Vs.forEach(elem => work.appendChild(elem.elem));
 
-    player.clear();
+    if (lastSave) currGraph = Graph.load(lastSave);
+
+    if (currGraph){
+        currGraph.Ps.forEach(elem => work.appendChild(elem.elem));
+        currGraph.Es.forEach(elem => work.appendChild(elem.elem));
+        currGraph.Vs.forEach(elem => work.appendChild(elem.elem));
+    }
 
     myAlert.innerHTML = selectedTool.desc;
 
     if (player.mode === "STEP") modeElem.querySelector(".step").innerHTML = 1;
     else if (!player.isPaused) document.querySelector(".play").click();
 
+    player.clear();
+
     isAction = false;
+
     lastSelected = null;
     currSelected = null;
 }

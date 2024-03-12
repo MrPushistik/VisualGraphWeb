@@ -3,15 +3,15 @@ class Player {
         this.stepHolder = new Array();
         this.index = 0;
         this.isPaused = false;
-        this.speeds = [0.2, 0.5, 0.8, 1, 1.5, 2, 3, 5]
-        this.speed = 3;
+        this.speeds = [0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30]
+        this.speed = 4;
         this.mode = "STEP";
     }
 
     clear(){
         this.stepHolder = new Array();
         this.index = 0;
-        this.isPaused = false;
+        this.isPaused = true;
     }
 
     pause(){
@@ -82,7 +82,7 @@ class Player {
 
                 this.next();
                 this.invoke();
-            }, 1000 / this.getSpeed())
+            }, 1000 * this.getSpeed())
         }
     }
 }

@@ -4,7 +4,7 @@ class V {
         this.desc = desc;
         this.x = x;
         this.y = y; 
-        this.elem = this.createVertex(this.x, this.y, this.name, this.desc, Colors.GREEN)
+        this.elem = this.createVertex(this.x, this.y, this.name, this.desc, Colors.GREEN);
     }
 
     setName(name){
