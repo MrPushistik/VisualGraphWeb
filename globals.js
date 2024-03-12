@@ -72,3 +72,18 @@ const warnWindow = function (text) {
 
     document.body.append(form);
 }
+
+const preLoadWindow = function () {
+
+    let form  = document.createElement("div");
+    form.className = "form-wrap";
+    form.innerHTML = 
+    `
+        <div class="warn-form">
+            <p class="form-title">Вы уверены, что хотите загрузить файл? Текущий граф будет утерян!</p>
+            <button type="button" class="accept submit">Да</button>
+            <button type="button" class="cancel submit">Нет</button>
+        </div>
+    `;
+    return form;
+}

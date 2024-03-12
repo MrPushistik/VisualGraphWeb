@@ -38,7 +38,6 @@ let tools = [
             if (isAction) return;
         }
     },
-    
     {
         name: "Вершина", 
         desc: "клик левой кнопкой мыши по пустому пространству - создать вершину", 
@@ -217,7 +216,7 @@ let tools = [
     {
         name: "Обход в глубину", 
         desc: "Выбор начальной вершины левой кнопкой мыши - начать выполнение алгоритма DFS. Чтобы завершить работу с алгоритмом - нажать кнопку 'Завершить' ", 
-        src: "Icons/BFS.svg", 
+        src: "Icons/DFS.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
 
@@ -1490,6 +1489,82 @@ let toolCreator = function(toolObj) {
     return div;
 }
 
+let saveTool = function() {
+    let div = document.createElement("div");
+    div.className = "tool"
+    div.innerHTML =
+    `
+        <div class="tool-img-holder">
+            <img class="tool-img" alt="сохранение" src="Icons/V.svg">
+        </div>
+
+        <div class="tool-desc-holder">
+            <p class="tool-desc">Сохранить</p>
+        </div>
+    `
+    div.onclick = () => {
+        if (isAction) return;
+
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currGraph.save()));
+        let dlAnchorElem = document.createElement("a");
+        dlAnchorElem.setAttribute("href",     dataStr     );
+        dlAnchorElem.setAttribute("download", "graph.json");
+        dlAnchorElem.click();   
+    }
+    return div;
+}
+
+let loadTool = function() {
+    let div = document.createElement("div");
+    div.className = "tool"
+    div.innerHTML =
+    `
+        <div class="tool-img-holder">
+            <img class="tool-img" alt="загрузка" src="Icons/V.svg">
+        </div>
+
+        <div class="tool-desc-holder">
+            <p class="tool-desc">Загрузить</p>
+        </div>
+
+        <input id="getFile" type="file" hidden>
+    `
+
+    let getFile = div.querySelector("#getFile");
+    let form = preLoadWindow();
+
+    div.onclick = () => {
+        if (isAction) return;
+        
+        form.querySelector(".accept").onclick = () => {getFile.click();}
+        form.querySelector(".cancel").onclick = () => {form.remove();}
+        document.body.append(form);
+    }
+
+    getFile.onchange = (event) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader()
+            fileReader.onload = (e) => {
+                let obj = e.target.result;
+                resolve(JSON.parse(obj));
+            }
+            fileReader.readAsText(event.target.files[0]);
+
+        }).then(res => {
+            form.remove();
+            currGraph = Graph.load(res);
+            work.innerHTML = "";
+            currGraph.Ps.forEach(elem => work.appendChild(elem.elem));
+            currGraph.Es.forEach(elem => work.appendChild(elem.elem));
+            currGraph.Vs.forEach(elem => work.appendChild(elem.elem));
+        }).catch((err => {
+            warnWindow("Файл не был загружен");
+        }))
+    }
+
+    return div;
+}
+
 addEventListener("click",(e) => {
     if (isAction) return;
 
@@ -1526,8 +1601,11 @@ addEventListener("contextmenu", (e) => {
     }
 })
 
-
-tools.forEach(e => toolPanel.appendChild(toolCreator(e)));
+toolPanel.appendChild(saveTool());
+toolPanel.appendChild(loadTool());
+for (let i = 0; i < tools.length; i++){
+    toolPanel.appendChild(toolCreator(tools[i]));
+}
 
 modeSwitcher.onclick = () => {
     if (modeSwitcher.value === "AUTO"){
@@ -1650,4 +1728,4 @@ document.querySelector(".finish").onclick = () => {
     currSelected = null;
 }
 
-document.querySelectorAll(".tool")[0].click();
+document.querySelectorAll(".tool")[2].click();
