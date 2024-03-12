@@ -131,6 +131,37 @@ class Graph{
         }
     }
 
+    isPath(v, u){
+        let start = v;
+        let list = currGraph.getList();
+
+        let queue = new Array();
+        let visited = new Array(currGraph.Vs.length).fill(false);
+
+        queue.unshift(start);
+        visited[start] = true;
+        let count = 1;
+        
+        while(queue.length > 0){
+            let a = queue.pop();
+           
+            for (let i = 0; i < list[a].length; i++){
+
+                let idx = list[a][i];
+
+                if (!visited[idx]){
+                    if (idx == u) return true;
+                    queue.unshift(idx);
+                    visited[idx] = true;
+                    count++;
+                }
+            }
+        }
+
+        return false;
+
+    }
+
     isConnected(){
         let start = 0;
         let list = currGraph.getList();
