@@ -44,7 +44,7 @@ class E {
 
             if (isAction) return;
 
-            if (selectedTool.name !== "Курсор" && selectedTool.name != "Ребро") return;
+            if (selectedTool.name !== "Курсор" && selectedTool.name !== "Ребро" && selectedTool.name !== "Удаление") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
             lastSelected = currSelected;

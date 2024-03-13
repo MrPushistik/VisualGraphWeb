@@ -105,7 +105,7 @@ class P {
 
             if (isAction) return;
 
-            if (selectedTool.name !== "Курсор" && selectedTool.name != "Дуга") return;
+            if (selectedTool.name !== "Курсор" && selectedTool.name != "Дуга" && selectedTool.name !== "Удаление") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
             lastSelected = currSelected;
