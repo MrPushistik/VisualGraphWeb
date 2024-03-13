@@ -1645,6 +1645,9 @@ modeSwitcher.onclick = () => {
 
 document.querySelector(".finish").onclick = () => {
     
+    if (currSelected) currSelected.setColor(Colors.GREEN);
+        lastSelected = currSelected;
+        currSelected = null;
     if (!isAction) return;
     
     work.innerHTML = "";
@@ -1667,7 +1670,6 @@ document.querySelector(".finish").onclick = () => {
     isAction = false;
 
     lastSelected = null;
-    currSelected = null;
 }
 
 toolPanel.appendChild(saveTool());
