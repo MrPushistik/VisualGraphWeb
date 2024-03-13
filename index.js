@@ -27,6 +27,79 @@ window.onload = () => {
     }
 }
 
+const weightWindow = function (EorP) {
+
+    let form  = document.createElement("div");
+    form.className = "form-wrap";
+    form.innerHTML = 
+    `
+        <form class="weight-form">
+            <label class="form-title" for="weight">${EorP instanceof E ? "Вес Ребра" : "Вес Дуги"}</label>
+            <input id="weight" class="input-number" type="number" min="1" value="${EorP.value}">
+            <button type="submit" class="submit">Ок</button>
+        </form>
+    `;
+
+    const input = form.querySelector("#weight");
+
+    input.ondblclick = () => {
+        input.value = "";
+    }
+
+    form.onsubmit = (e) => {
+
+        e.preventDefault();
+
+        if(input.value){
+            EorP.value = Number(input.value);
+            EorP.setDesc(Number(input.value));
+        }
+        
+        form.remove();
+    }
+
+    document.body.append(form);
+}
+
+
+const warnWindow = function (text) {
+
+    let form  = document.createElement("div");
+    form.className = "form-wrap";
+    form.innerHTML = 
+    `
+        <form class="warn-form">
+            <p class="form-title">${text}</p>
+            <button type="submit" class="submit">Ок</button>
+        </form>
+    `;
+
+    form.onsubmit = (e) => {
+        
+        e.preventDefault();
+        form.remove();
+    }
+
+    document.body.append(form);
+}
+
+const preLoadWindow = function () {
+
+    let form  = document.createElement("div");
+    form.className = "form-wrap";
+    form.innerHTML = 
+    `
+        <div class="warn-form">
+            <p class="form-title">Вы уверены, что хотите загрузить файл? Текущий граф будет утерян!</p>
+            <div class="button-holder">
+                <button type="button" class="accept submit">Да</button>
+                <button type="button" class="cancel submit">Нет</button>
+            </div>
+        </div>
+    `;
+    return form;
+}
+
 function getCoords(e) {
     let p = svg.createSVGPoint();
     p.x = e.clientX;
@@ -38,15 +111,38 @@ function getCoords(e) {
 let tools = [
     {
         name: "Курсор", 
-        desc: "ЛКM (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) - выделить. Двойной ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'><img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по ребру/дуге - изменить вес. ПКМ (<img class='icon' alt='rcm' src='Icons/MouseRight.svg'>) - удалить выделенное", 
+        desc: "ЛКM/Тап - выделить. Двойной ЛКМ/Тап по ребру/дуге - изменить вес.", 
         src: "Icons/Cursor.svg", 
         action: (e) => {
             if (isAction) return;
         }
     },
     {
+        name: "Удаление", 
+        desc: "ЛКM/Тап по объекту - удалить.", 
+        src: "Icons/Delete.svg", 
+        action: (e) => {
+            if (isAction) return;
+
+            if (currSelected) {
+                if (currSelected instanceof P) {
+                    currGraph.deleteP(currSelected);
+                }
+                else if (currSelected instanceof E) {
+                    currGraph.deleteE(currSelected);
+                }
+                else {
+                    currGraph.deleteV(currSelected);
+                }
+        
+                lastSelected = currSelected;
+                currSelected = null;
+            }
+        }
+    },
+    {
         name: "Вершина", 
-        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по пустому месту - создать вершину", 
+        desc: "ЛКМ/Тап по пустому месту - создать вершину.", 
         src: "Icons/V.svg", 
         action: (e) => {
             if (isAction) return;
@@ -62,7 +158,7 @@ let tools = [
     },
     {
         name: "Ребро", 
-        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по первой вершине, затем по второй вершине - создать ребро", 
+        desc: "ЛКМ/Тап по первой вершине, затем по второй вершине - создать ребро.", 
         src: "Icons/E.svg",
         action: (e) => {
 
@@ -97,7 +193,7 @@ let tools = [
     },
     {
         name: "Дуга", 
-        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по первой вершине, затем по второй вершине - создать дугу", 
+        desc: "ЛКМ/Тап по первой вершине, затем по второй вершине - создать дугу.", 
         src: "Icons/P.svg",
         action: (e) => {
 
@@ -131,7 +227,7 @@ let tools = [
     },
     {
         name: "Обход в ширину", 
-        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Обход в ширину'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину для запуска алгоритма 'Обход в ширину'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/BFS.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
@@ -168,7 +264,7 @@ let tools = [
                         let a = queue.shift();
                         path.push(currGraph.Vs[a].name);
 
-                        after = "Извлекаем вершину из очереди. Текущая вершина = " + currGraph.Vs[a].name + ". Просматриваем смежные вершины." + getQueue(queue, "pop", a);
+                        after = "Извлекаем вершину из очереди. Текущая вершина " + currGraph.Vs[a].name + ". Просматриваем смежные непосещенные вершины. " + getQueue(queue, "pop", a);
                         console.log(new String(after));
                         player.push(
                             Step.getSteps([
@@ -182,7 +278,7 @@ let tools = [
                             let idx = list[a][i];
                             if (!visited[idx]){
 
-                                after = "Заносим вершину = " + currGraph.Vs[idx].name + " в очередь. " + getQueue(queue, "push", idx);
+                                after = "Заносим вершину " + currGraph.Vs[idx].name + " в очередь. " + getQueue(queue, "push", idx);
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[idx], Colors.PURPLE, Colors.GREEN, null, null),
@@ -210,7 +306,7 @@ let tools = [
                     if (path.length === currGraph.Vs.length) after = "Очередь пуста. Обход завершен. Результат: ";
                     else after = "Очередь пуста. Не все вершины достижимы из вершины " + currGraph.Vs[start].name + ". Результат: "
                     for (let k = 0; k < path.length - 1; k++) after += path[k] + ", ";
-                    after += path[path.length - 1];
+                    after += path[path.length - 1] + ".";
                     player.push(
                         Step.getSteps([new TextSegment(myAlert, after, before)])
                     )
@@ -221,7 +317,7 @@ let tools = [
     },
     {
         name: "Обход в глубину", 
-        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Обход в глубину'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину для запуска алгоритма 'Обход в глубину'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/DFS.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
@@ -241,7 +337,7 @@ let tools = [
                     let stack = new Array();
 
                     let before = "";
-                    let after = "Добавляем выбранную вершину в стек " + getStack(stack, "push", start);
+                    let after = "Добавляем выбранную вершину в стек. " + getStack(stack, "push", start);
                     player.push(
                         Step.getSteps([
                             new VertexSegment(startV, Colors.PURPLE, Colors.YELLOW, null, null),
@@ -259,7 +355,7 @@ let tools = [
                         visited[a] = true;
                         
 
-                        after = "Извлекаем вершину из стека. Текущая вершина = " + currGraph.Vs[a].name + "." + getStack(stack, "pop", a);
+                        after = "Извлекаем вершину из стека. Текущая вершина " + currGraph.Vs[a].name + ". " + getStack(stack, "pop", a);
                         player.push(
                             Step.getSteps([
                                 new VertexSegment(currGraph.Vs[a], Colors.YELLOW, Colors.PURPLE, null, null),
@@ -273,7 +369,7 @@ let tools = [
                             let idx = list[a][i];
                             if (!visited[idx]){
 
-                                after = "Найдена непосещенная вершина " + currGraph.Vs[idx].name + ", смежная с текущей";
+                                after = "Найдена непосещенная вершина " + currGraph.Vs[idx].name + ", смежная с текущей.";
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[idx], Colors.RED, Colors.GREEN, null, null),
@@ -294,7 +390,7 @@ let tools = [
 
                                 stack.push(a);
 
-                                after = "Добавляем найденную вершину " + currGraph.Vs[idx].name + " в стек" + getStack(stack, "push", idx);
+                                after = "Добавляем найденную вершину " + currGraph.Vs[idx].name + " в стек. " + getStack(stack, "push", idx);
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[idx], Colors.PURPLE, Colors.RED, null, null),
@@ -314,7 +410,7 @@ let tools = [
                         }
 
                         if (flag){
-                            after = "Вершин, смежных с текущей - нет";
+                            after = "Вершин, смежных с текущей, нет.";
                             player.push(
                                 Step.getSteps([
                                     new VertexSegment(currGraph.Vs[a], Colors.BLUE, Colors.YELLOW, null, null),
@@ -328,7 +424,7 @@ let tools = [
                     if (path.length === currGraph.Vs.length) after = "Стек пуст. Обход завершен. Результат: ";
                     else after = "Стек пуст. Не все вершины достижимы из вершины " + currGraph.Vs[start].name + ". Результат: "
                     for (let k = 0; k < path.length - 1; k++) after += path[k] + ", ";
-                    after += path[path.length - 1];
+                    after += path[path.length - 1] + ".";
 
                     player.push(
                         Step.getSteps([new TextSegment(myAlert, after, before)])
@@ -340,7 +436,7 @@ let tools = [
     },
     {
         name: "Алгоритм Дейкстры", 
-        desc: "Выбрать начальную (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) и конечную (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) вершины для запуска алгоритма поиска кратчайшего рассотяния 'Алгоритм Дейсткры'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную и конечную вершины для запуска алгоритма поиска кратчайшего рассотяния 'Алгоритм Дейсткры'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/MinPath.svg", 
         action: (e) => {
             
@@ -360,7 +456,7 @@ let tools = [
                     let sink = currGraph.Vs.indexOf(sinkV);
 
                     if (!currGraph.isPath(source, sink)) {
-                        warnWindow("Пути между выбраными вершинами нет.");
+                        warnWindow("Пути между выбраными вершинами нет! Выберите другую пару вершин.");
                         document.querySelector(".finish").click();
                         return;
                     }
@@ -389,7 +485,7 @@ let tools = [
                     currGraph.Vs[sink].setColor(Colors.RED);
 
                     let before = "";
-                    let after = "Присваиваем стартовой вершине метку 0, остальным - ∞";
+                    let after = "Присваиваем стартовой вершине метку 0, остальным - ∞.";
                     player.push(
                         Step.getSteps([
                             new VertexSegment(currGraph.Vs[source], Colors.RED, Colors.YELLOW, "0", "∞"),
@@ -402,7 +498,7 @@ let tools = [
 
                         let nextMin = Infinity;
 
-                        let after = "Текущаяя вершина " + currGraph.Vs[curr].name + ", так как до нее наименьшее расстояние " + currMin;
+                        let after = "Текущая вершина " + currGraph.Vs[curr].name + ", так как до нее наименьшее расстояние " + currMin + ".";
                         player.push(
                             Step.getSteps([
                                 new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, currGraph.Vs[curr] === sinkV || currGraph.Vs[curr] === sourceV ? Colors.RED : Colors.GREEN, null, null),
@@ -437,7 +533,7 @@ let tools = [
                                     parent[j] = curr;
                                 }
                                 else {
-                                    after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " + " + currMin + " >= " + (d[j] === Infinity ? "∞" : d[j]) + " => оставляем значение метки нетронутым";
+                                    after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " + " + currMin + " >= " + (d[j] === Infinity ? "∞" : d[j]) + " => оставляем значение метки нетронутым.";
                                     player.push(
                                         Step.getSteps([
                                             new VertexSegment(currGraph.Vs[j], Colors.PURPLE, currGraph.Vs[j] === sinkV ? Colors.RED : Colors.GREEN, null, null),
@@ -461,7 +557,7 @@ let tools = [
                             toChange.push(new EdgeSegment(edgeAccess[curr][painted[k]], Colors.GREEN, Colors.PURPLE, null, null))
                         }
 
-                        if (currGraph.Vs.length - 1 != i) after = "Выбираем новую текущую вершину, так как больше нет непосещенных смежных вершин";
+                        if (currGraph.Vs.length - 1 != i) after = "Выбираем новую текущую вершину, так как больше нет непосещенных смежных вершин.";
                         else after = "Все достижимые вершины пройдены.";
                         player.push(
                             Step.getSteps(toChange.concat([
@@ -471,14 +567,12 @@ let tools = [
                         );
                         before = after;
 
-                        
-
                         curr = next;
                         currMin = nextMin;
                         visited[curr] = true;
                     }
 
-                    if (d[sink] !== Infinity){
+
                         let i = sink;
                         let res = currGraph.Vs[i].name + "-" + currGraph.Vs[parent[i]].name;
                         let toChange = [];
@@ -498,18 +592,10 @@ let tools = [
                         toChange.push(new EdgeSegment(edgeAccess[i][last], Colors.RED, Colors.GREEN, null, null));
                         toChange.push(new VertexSegment(currGraph.Vs[i], Colors.RED, Colors.BLUE, null, null));
     
-                        after = "Кратчайшее рассотяние между веришина " + sourceV.name + " и " + sinkV.name + " равно " + d[sink] + ". Кратчайший путь: " + res.split("").reverse().join("") + ".";
+                        after = "Кратчайшее рассотяние между веришинами " + sourceV.name + " и " + sinkV.name + " равно " + d[sink] + ". Кратчайший путь: " + res.split("").reverse().join("") + ".";
                         toChange.push(new TextSegment(myAlert, after, before));
                         player.push(Step.getSteps(toChange));
-                    }
-                    else {
-                        after = "Пути между вершинами " + currGraph.Vs[source].name + " и " + currGraph.Vs[sink].name + " нет ";
-                        player.push(
-                            Step.getSteps([
-                                new TextSegment(myAlert, after, before)
-                            ])
-                        );
-                    }
+
                     
                     player.invoke();
                 }
@@ -517,7 +603,7 @@ let tools = [
     },
     {
         name: "Эйлеров цикл", 
-        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Поиск эйлерова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину для запуска алгоритма 'Поиск эйлерова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/Euler.svg", 
         action: (e) => {
             if (currGraph.Es.length == 0 || currGraph.Ps.length == 0){
@@ -556,7 +642,7 @@ let tools = [
 
                                 let a = stack.pop();
 
-                                after = "Извлекаем вершину из стека. Текущая вершина = " + currGraph.Vs[a].name + "." + getStack(stack, "pop", a);
+                                after = "Извлекаем вершину из стека. Текущая вершина = " + currGraph.Vs[a].name + ". " + getStack(stack, "pop", a);
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[a], Colors.YELLOW, Colors.PURPLE, null, null),
@@ -567,9 +653,9 @@ let tools = [
 
                                 if (list[a].length == 0) {
                                     path.push(a);
-                                    after = "У текущей вершины нет ребер, по которым можно попасть в другие вершины. Добавляем ее к результату: ";
+                                    after = "У текущей вершины нет ребер (дуг), по которым можно попасть в другие вершины. Добавляем ее в результат: ";
                                     for (let i = 0; i < path.length; i++) after += currGraph.Vs[path[i]].name + "-";
-                                    after = after.substring(0, after.length-1);
+                                    after = after.substring(0, after.length-1) + ".";
                                     player.push(
                                         Step.getSteps([
                                             new VertexSegment(currGraph.Vs[a], stack.indexOf(a) === -1 ? Colors.BLUE : Colors.PURPLE, Colors.YELLOW, null, null),
@@ -584,7 +670,7 @@ let tools = [
                                     let i = list[b].indexOf(a);
                                     if (i != -1 && edgeAccess[a][b] instanceof E) list[b].splice(i,1);
 
-                                    after = "У текущей вершины есть путь в вершину " + currGraph.Vs[b].name + ". Удаляем ребро " + currGraph.Vs[a].name + "-" + currGraph.Vs[b].name;
+                                    after = "У текущей вершины есть путь в вершину " + currGraph.Vs[b].name + " через ребро (дугу) " + currGraph.Vs[a].name + "-" + currGraph.Vs[b].name + ". Удаляем это ребро (дугу).";
                                     player.push(
                                         Step.getSteps([
                                             new VertexSegment(currGraph.Vs[b], Colors.RED, stack.indexOf(b) !== -1 ? Colors.PURPLE : Colors.GREEN, null, null),
@@ -605,7 +691,7 @@ let tools = [
 
                                     stack.push(a);
 
-                                    after = "Добавляем новую вершину " + currGraph.Vs[b].name + " в стек" + getStack(stack, "push", b);
+                                    after = "Добавляем новую вершину " + currGraph.Vs[b].name + " в стек." + getStack(stack, "push", b);
                                     player.push(
                                         Step.getSteps([
                                             new VertexSegment(currGraph.Vs[b], Colors.PURPLE, Colors.RED, null, null),
@@ -624,7 +710,7 @@ let tools = [
                                 toChange.push(new EdgeSegment(edgeAccess[path[i+1]][path[i]], Colors.RED, Colors.GRAY, null, null));
                                 after += currGraph.Vs[path[i]].name + "-"
                             }
-                            after += currGraph.Vs[path[path.length - 1]].name;
+                            after += currGraph.Vs[path[path.length - 1]].name + ".";
                             
                             toChange.push(new TextSegment(myAlert, after, before));
 
@@ -633,7 +719,7 @@ let tools = [
                     }
                     else {
                         if (currGraph.Es.length == 0){
-                            warnWindow("Граф содержит вершины, у которых число входных дуг не равно число выходных. Эйлеров цикл отсутсвует.");
+                            warnWindow("Граф содержит вершины, у которых число входных дуг не равно числу выходных. Эйлеров цикл отсутсвует.");
                         }
                         else {
                             warnWindow("Граф содержит вершины нечетной сетепени. Эйлеров цикл отсутсвует.");
@@ -641,7 +727,7 @@ let tools = [
                     }
                 }
                 else{
-                    warnWindow("Граф несвязный");
+                    warnWindow("Граф несвязный! Алгоритм не применим.");
                     return;
                 }
             }
@@ -651,160 +737,9 @@ let tools = [
             }
         }
     },
-    // {
-    //     name: "Гамильтонов цикл", 
-    //     desc: "", 
-    //     src: "Icons/BFS.svg", 
-    //     action: (e) => {
-
-    //         if (currGraph.isConnected()){
-    //             if (currSelected && currSelected instanceof V){
-
-    //                 if (isAction) return;
-    //                 else isAction = true;
-
-    //                 lastSave = save();
-
-    //                 let startV = currSelected;
-
-    //                 let list = currGraph.getList();
-    //                 let edgeAccess = currGraph.getAdvancedMatrix();
-
-    //                 let n = currGraph.Vs.length;
-    //                 let visited = new Array(n).fill(false);
-    //                 let cycle = new Array(n);
-    //                 let start = currGraph.Vs.indexOf(startV);
-
-    //                 cycle[0] = start;
-    //                 visited[start] = true;     
-
-    //                 let before = "";
-    //                 let after;
-
-    //                 after = `В основе поиска гамильтонова цикла лежит рекурсивный вызов просмотра непосещенных соседей STEP(k), принимающий качестве параметра глубину вызова k. Для удобства понимания, начала сообщений будут снабжены метками с информацией о том, на какой глубине вызова выполняются действия.`;
-    //                 player.push(
-    //                     Step.getSteps([
-    //                         new TextSegment(myAlert, after, before)
-    //                     ])
-    //                 );
-    //                 before = after;
-                    
-    //                 const step = (k) => {
-
-    //                     if (k == n - 1){
-    //                         if (list[cycle[k]].indexOf(start) !== -1) return true;
-
-    //                         after = `STEP(${k + 1}): Все вершины пройдены, но гамильтонов цикл не был найден. Завершение выполнения STEP(${k + 1}).`;
-    //                         player.push(
-    //                             Step.getSteps([
-    //                                 new TextSegment(myAlert, after, before)
-    //                             ])
-    //                         );
-    //                         before = after;
-
-    //                         return false;
-    //                     }
-
-    //                     after = `STEP(${k + 1}): Просмотр непосещенных смежных вершин для вершины ` + currGraph.Vs[cycle[k]].name;
-    //                     player.push(
-    //                         Step.getSteps([
-    //                             new TextSegment(myAlert, after, before)
-    //                         ])
-    //                      );
-    //                     before = after;
-                        
-    //                     for (let idx = 0; idx < list[cycle[k]].length; idx++){
-
-    //                         let i = list[cycle[k]][idx];
-
-    //                         if (!visited[i]){
-
-    //                             after = `STEP(${k + 1}): Перемещаемся в смежную непросмотренную вершину ` + currGraph.Vs[i].name + `. Вызов STEP(${k + 2})`;                               
-    //                             player.push(
-    //                                 Step.getSteps([
-    //                                     new VertexSegment(currGraph.Vs[i], Colors.YELLOW, Colors.GREEN, null, null),
-    //                                     new EdgeSegment(edgeAccess[cycle[k]][i], Colors.YELLOW, Colors.GREEN, null, null),
-    //                                     new TextSegment(myAlert, after, before)
-    //                                 ])
-    //                             );
-    //                             before = after;
-
-    //                             cycle[k + 1] = i;
-    //                             visited[i] = true;
-
-    //                             if (step(k + 1)) return true;
-
-    //                             visited[i] = false;
-
-    //                             after = `STEP(${k + 1}): Возвращаемся к просмотру соседей вершины ` + currGraph.Vs[cycle[k]].name + `. `;
-    //                             if (idx > 0){
-    //                                 after += "Уже просмотренные соседи: ";
-    //                                 for (let j = 0; j <= idx; j++) if (!visited[list[cycle[k]][j]]) after += currGraph.Vs[list[cycle[k]][j]].name + ", "
-    //                                 after = after.substring(0, after.length - 2);
-    //                             }
-                                
-    //                             player.push(
-    //                                 Step.getSteps([
-    //                                     new VertexSegment(currGraph.Vs[cycle[k + 1]], Colors.GREEN, Colors.YELLOW, null, null),
-    //                                     new EdgeSegment(edgeAccess[cycle[k]][cycle[k+1]], Colors.GREEN, Colors.YELLOW, null, null),
-    //                                     new TextSegment(myAlert, after, before)
-    //                                 ])
-    //                             );
-    //                             before = after;
-    //                         }
-    //                     }
-
-    //                     after = `STEP(${k + 1}): Просмотр соседей вершины ` + currGraph.Vs[cycle[k]].name + ` не дал результатов. Завершение выполнения STEP(${k + 1}).`;
-    //                     player.push(
-    //                         Step.getSteps([
-    //                             new TextSegment(myAlert, after, before)
-    //                         ])
-    //                     );
-    //                     before = after;
-
-    //                     return false;
-    //                 }
-
-    //                 after = `Запускаем STEP(1).`;
-    //                 player.push(
-    //                     Step.getSteps([
-    //                         new TextSegment(myAlert, after, before)
-    //                     ])
-    //                 );
-    //                 before = after;
-          
-
-    //                 if (step(0)){
-    //                     after = "Гамильтонов цикл обнаружен: "
-    //                     for (let  i = 0; i < cycle.length; i++){
-    //                         after += currGraph.Vs[cycle[i]].name + "-";
-    //                     }
-    //                     after += currGraph.Vs[cycle[0]].name;
-    //                     player.push(
-    //                         Step.getSteps([
-    //                             new EdgeSegment(edgeAccess[cycle[0]][cycle[cycle.length-1]], Colors.YELLOW, Colors.GREEN, null, null),
-    //                             new TextSegment(myAlert, after, before)
-    //                         ])
-    //                     );
-    //                 }
-    //                 else{
-    //                     after = "Гамилтонов цикл в данном графе отсутсвует"
-    //                     player.push(
-    //                         Step.getSteps([
-    //                             new TextSegment(myAlert, after, before)
-    //                         ])
-    //                     );
-    //                 }
-    //             }
-    //         }
-    //         else {
-    //             warnWindow("Граф несвязный");
-    //         }
-    //     }
-    // },
     {
         name: "Гамильтонов цикл", 
-        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Поиск гамильтонова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину для запуска алгоритма 'Поиск гамильтонова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/Hamilton.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
@@ -855,7 +790,7 @@ let tools = [
                                 for (let i = 0; i < stack.length; i++){
                                     after += currGraph.Vs[stack[i]].name + "-";
                                 }
-                                after += currGraph.Vs[curr].name + "-" +  currGraph.Vs[start].name;
+                                after += currGraph.Vs[curr].name + "-" +  currGraph.Vs[start].name + ".";
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, Colors.PURPLE, null, null),
@@ -868,7 +803,7 @@ let tools = [
                             }
                         }
 
-                        after = "Извлекаем вершину из стека. Текущая вершина = " + currGraph.Vs[curr].name + getStack(stack, "pop", curr);
+                        after = "Извлекаем вершину из стека. Текущая вершина " + currGraph.Vs[curr].name + ". " + getStack(stack, "pop", curr);
                         let toChange4 = [
                             new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, Colors.PURPLE, null, null),
                         ]
@@ -883,7 +818,7 @@ let tools = [
                         let si = 0;
                         let toChange = [];
                         if (flag) {
-                            after = "Просмотр смежных непосещенный вершин для вершины " + currGraph.Vs[curr].name + " ранее был прерван. Возобновляем просмотр. Уже просмотренные вершины: ";  
+                            after = "Просмотр смежных непосещенных вершин для вершины " + currGraph.Vs[curr].name + " ранее был прерван. Возобновляем просмотр. Уже просмотренные вершины: ";  
                             while (true){
                                 if (!visited[list[curr][si]]) {
                                     after += currGraph.Vs[list[curr][si]].name + ", ";
@@ -891,7 +826,7 @@ let tools = [
                                 if (list[curr][si] == last) break;
                                 si++;
                             }
-                            after = after.substring(0, after.length - 2);
+                            after = after.substring(0, after.length - 2) + ".";
                             player.push(
                                 Step.getSteps(toChange.concat([
                                     new TextSegment(myAlert, after, before),
@@ -974,7 +909,7 @@ let tools = [
     },
     {
         name: "Алгоритм Прима", 
-        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма построения минимального остовного дерева 'Алгоритм Прима'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину для запуска алгоритма построения минимального остовного дерева 'Алгоритм Прима'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/MST.svg", 
         action: (e) => {
             if (currGraph.Ps.length == 0){
@@ -1005,7 +940,7 @@ let tools = [
                         }
     
                         let before = "";
-                        let after = "Присваиваем стартовой вершине метку " + currGraph.Vs[curr].name + " 0";
+                        let after = "Присваиваем стартовой вершине метку " + currGraph.Vs[curr].name + " 0.";
                         player.push(
                             Step.getSteps([
                                 new VertexSegment(currGraph.Vs[curr], null, null, currGraph.Vs[curr].name + " 0", "? ∞"),
@@ -1018,7 +953,7 @@ let tools = [
     
                             let nextMin = Infinity;
     
-                            after = "Просматриваем смежные непосещенные вершины относительно текущей вершины " + currGraph.Vs[curr].name + ".";
+                            after = "Просматриваем смежные непосещенные вершины для текущей вершины " + currGraph.Vs[curr].name + ".";
                             player.push(
                                 Step.getSteps([
                                     new TextSegment(myAlert, after, before)
@@ -1094,7 +1029,7 @@ let tools = [
                             );
                             before = after;
     
-                            after = "Присоединим новую вершину ребром " + currGraph.Vs[curr].name + "-" + currGraph.Vs[next].name + " минимально веса " + d[next][0] + ".";
+                            after = "Присоединим новую вершину ребром " + currGraph.Vs[curr].name + "-" + currGraph.Vs[next].name + " минимального веса " + d[next][0] + ".";
                             player.push(
                                 Step.getSteps([
                                     new EdgeSegment(edgeAccess[d[next][1]][next], Colors.RED, Colors.GREEN, null, null),
@@ -1113,7 +1048,7 @@ let tools = [
                         //     sum += d[i][0];
                         // }
     
-                        after = "Минимальное остовное дерево построено. Вес дерева равен " + sum;
+                        after = "Минимальное остовное дерево построено. Вес дерева равен " + sum + ".";
                         player.push(
                             Step.getSteps([
                                 new VertexSegment(currGraph.Vs[curr], Colors.BLUE, Colors.YELLOW, null, null),
@@ -1124,17 +1059,17 @@ let tools = [
                     }
                 }
                 else {
-                    warnWindow("Граф несвязный. Алгоритм не применим.");
+                    warnWindow("Граф несвязный! Алгоритм не применим.");
                 }
             }
             else {
-                warnWindow("Граф содержит дуги. Алгоритм не применим.");
+                warnWindow("Граф содержит дуги! Алгоритм не применим.");
             }
         }
     },
     {
         name: "Алгоритм Форда-Фалкерсона", 
-        desc: "Выбрать начальную вершину (исток) (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) и конечную вершину (сток) (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма поиска максимального потока 'Алгоритм Форда-Фалкерсона'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        desc: "Выбрать начальную вершину (исток) и конечную вершину (сток) для запуска алгоритма поиска максимального потока 'Алгоритм Форда-Фалкерсона'. Завершить работу с алгоритмом - кнопка 'Завершить'.", 
         src: "Icons/MaxFlow.svg", 
         action: (e) => {
                 if (currSelected && lastSelected && 
@@ -1610,32 +1545,6 @@ addEventListener("click",(e) => {
     }
 })
 
-addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    if (isAction) return;
-    
-    if (currSelected) {
-        if (currSelected instanceof P) {
-            currGraph.deleteP(currSelected);
-        }
-        else if (currSelected instanceof E) {
-            currGraph.deleteE(currSelected);
-        }
-        else {
-            currGraph.deleteV(currSelected);
-        }
-
-        lastSelected = currSelected;
-        currSelected = null;
-    }
-})
-
-toolPanel.appendChild(saveTool());
-toolPanel.appendChild(loadTool());
-for (let i = 0; i < tools.length; i++){
-    toolPanel.appendChild(toolCreator(tools[i]));
-}
-
 modeSwitcher.onclick = () => {
     if (modeSwitcher.value === "AUTO"){
 
@@ -1734,8 +1643,6 @@ modeSwitcher.onclick = () => {
     }
 }
 
-modeSwitcher.click();
-
 document.querySelector(".finish").onclick = () => {
     
     work.innerHTML = "";
@@ -1761,4 +1668,164 @@ document.querySelector(".finish").onclick = () => {
     currSelected = null;
 }
 
+toolPanel.appendChild(saveTool());
+toolPanel.appendChild(loadTool());
+for (let i = 0; i < tools.length; i++){
+    toolPanel.appendChild(toolCreator(tools[i]));
+}
+
+modeSwitcher.click();
+
 document.querySelectorAll(".tool")[2].click();
+
+// {
+    //     name: "Гамильтонов цикл", 
+    //     desc: "", 
+    //     src: "Icons/BFS.svg", 
+    //     action: (e) => {
+
+    //         if (currGraph.isConnected()){
+    //             if (currSelected && currSelected instanceof V){
+
+    //                 if (isAction) return;
+    //                 else isAction = true;
+
+    //                 lastSave = save();
+
+    //                 let startV = currSelected;
+
+    //                 let list = currGraph.getList();
+    //                 let edgeAccess = currGraph.getAdvancedMatrix();
+
+    //                 let n = currGraph.Vs.length;
+    //                 let visited = new Array(n).fill(false);
+    //                 let cycle = new Array(n);
+    //                 let start = currGraph.Vs.indexOf(startV);
+
+    //                 cycle[0] = start;
+    //                 visited[start] = true;     
+
+    //                 let before = "";
+    //                 let after;
+
+    //                 after = `В основе поиска гамильтонова цикла лежит рекурсивный вызов просмотра непосещенных соседей STEP(k), принимающий качестве параметра глубину вызова k. Для удобства понимания, начала сообщений будут снабжены метками с информацией о том, на какой глубине вызова выполняются действия.`;
+    //                 player.push(
+    //                     Step.getSteps([
+    //                         new TextSegment(myAlert, after, before)
+    //                     ])
+    //                 );
+    //                 before = after;
+                    
+    //                 const step = (k) => {
+
+    //                     if (k == n - 1){
+    //                         if (list[cycle[k]].indexOf(start) !== -1) return true;
+
+    //                         after = `STEP(${k + 1}): Все вершины пройдены, но гамильтонов цикл не был найден. Завершение выполнения STEP(${k + 1}).`;
+    //                         player.push(
+    //                             Step.getSteps([
+    //                                 new TextSegment(myAlert, after, before)
+    //                             ])
+    //                         );
+    //                         before = after;
+
+    //                         return false;
+    //                     }
+
+    //                     after = `STEP(${k + 1}): Просмотр непосещенных смежных вершин для вершины ` + currGraph.Vs[cycle[k]].name;
+    //                     player.push(
+    //                         Step.getSteps([
+    //                             new TextSegment(myAlert, after, before)
+    //                         ])
+    //                      );
+    //                     before = after;
+                        
+    //                     for (let idx = 0; idx < list[cycle[k]].length; idx++){
+
+    //                         let i = list[cycle[k]][idx];
+
+    //                         if (!visited[i]){
+
+    //                             after = `STEP(${k + 1}): Перемещаемся в смежную непросмотренную вершину ` + currGraph.Vs[i].name + `. Вызов STEP(${k + 2})`;                               
+    //                             player.push(
+    //                                 Step.getSteps([
+    //                                     new VertexSegment(currGraph.Vs[i], Colors.YELLOW, Colors.GREEN, null, null),
+    //                                     new EdgeSegment(edgeAccess[cycle[k]][i], Colors.YELLOW, Colors.GREEN, null, null),
+    //                                     new TextSegment(myAlert, after, before)
+    //                                 ])
+    //                             );
+    //                             before = after;
+
+    //                             cycle[k + 1] = i;
+    //                             visited[i] = true;
+
+    //                             if (step(k + 1)) return true;
+
+    //                             visited[i] = false;
+
+    //                             after = `STEP(${k + 1}): Возвращаемся к просмотру соседей вершины ` + currGraph.Vs[cycle[k]].name + `. `;
+    //                             if (idx > 0){
+    //                                 after += "Уже просмотренные соседи: ";
+    //                                 for (let j = 0; j <= idx; j++) if (!visited[list[cycle[k]][j]]) after += currGraph.Vs[list[cycle[k]][j]].name + ", "
+    //                                 after = after.substring(0, after.length - 2);
+    //                             }
+                                
+    //                             player.push(
+    //                                 Step.getSteps([
+    //                                     new VertexSegment(currGraph.Vs[cycle[k + 1]], Colors.GREEN, Colors.YELLOW, null, null),
+    //                                     new EdgeSegment(edgeAccess[cycle[k]][cycle[k+1]], Colors.GREEN, Colors.YELLOW, null, null),
+    //                                     new TextSegment(myAlert, after, before)
+    //                                 ])
+    //                             );
+    //                             before = after;
+    //                         }
+    //                     }
+
+    //                     after = `STEP(${k + 1}): Просмотр соседей вершины ` + currGraph.Vs[cycle[k]].name + ` не дал результатов. Завершение выполнения STEP(${k + 1}).`;
+    //                     player.push(
+    //                         Step.getSteps([
+    //                             new TextSegment(myAlert, after, before)
+    //                         ])
+    //                     );
+    //                     before = after;
+
+    //                     return false;
+    //                 }
+
+    //                 after = `Запускаем STEP(1).`;
+    //                 player.push(
+    //                     Step.getSteps([
+    //                         new TextSegment(myAlert, after, before)
+    //                     ])
+    //                 );
+    //                 before = after;
+          
+
+    //                 if (step(0)){
+    //                     after = "Гамильтонов цикл обнаружен: "
+    //                     for (let  i = 0; i < cycle.length; i++){
+    //                         after += currGraph.Vs[cycle[i]].name + "-";
+    //                     }
+    //                     after += currGraph.Vs[cycle[0]].name;
+    //                     player.push(
+    //                         Step.getSteps([
+    //                             new EdgeSegment(edgeAccess[cycle[0]][cycle[cycle.length-1]], Colors.YELLOW, Colors.GREEN, null, null),
+    //                             new TextSegment(myAlert, after, before)
+    //                         ])
+    //                     );
+    //                 }
+    //                 else{
+    //                     after = "Гамилтонов цикл в данном графе отсутсвует"
+    //                     player.push(
+    //                         Step.getSteps([
+    //                             new TextSegment(myAlert, after, before)
+    //                         ])
+    //                     );
+    //                 }
+    //             }
+    //         }
+    //         else {
+    //             warnWindow("Граф несвязный");
+    //         }
+    //     }
+    // },

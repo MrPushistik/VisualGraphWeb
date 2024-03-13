@@ -44,7 +44,7 @@ class E {
 
             if (isAction) return;
 
-            if (selectedTool.name === "Вершина") return;
+            if (selectedTool.name !== "Курсор" && selectedTool.name != "Ребро") return;
             if (currSelected) currSelected.setColor(Colors.GREEN);
 
             lastSelected = currSelected;
@@ -54,6 +54,7 @@ class E {
 
         elem.ondblclick = (e) => {
             if (isAction) return;
+            if (selectedTool.name !== "Курсор" && selectedTool.name != "Ребро") return;
             
             e.preventDefault();
             weightWindow(this);

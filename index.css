@@ -21,10 +21,18 @@ body, p{
 button{
     cursor: pointer;
 }
-
+header{
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(222, 255, 188);
+    border-bottom: 1px solid rgb(153, 229, 78);
+    color: #65c932;
+}
 .app{
     display: flex;
-    height: calc(100vh - 2px);
+    height: calc(100vh - 20px);
 }
 
 /* SVG */
@@ -241,18 +249,25 @@ button{
 .weight-form,.warn-form{
     border: 1px solid rgb(153, 229, 78);
     background-color: rgb(255, 255, 255);
-    width: 50vw;
-    height: 30vh;
+    width: 300px;
+    height: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
 }
+.warn-form{
+    width: 60vw;
+    height: 30vh;
+}
 .form-title{
-    height: 50%;
+    height: 40px;
     padding: 5px;
     font-size: 1.25rem;
     text-align: center;
+}
+.warn-form .form-title{
+    height: 33%;
 }
 .input-number{
     font-size: 1.25rem;
@@ -262,62 +277,23 @@ button{
     background-color: rgb(255, 255, 255);
     text-align: center;
 }
+.warn-form .button-holder{
+    width: 50%;
+    display: flex;
+    justify-content: space-between;
+}
+.warn-form .submit{
+    width: 45%;
+}
 .submit{
     background-color: rgb(153, 229, 78);
     color: white;
-    width: 40px;
+    width: 80px;
     height: 40px;
     border: 0;
+    font-size: 1.25rem;
 }
 
-
-@media (max-width: 1439px){
-    .work-space{
-        width: calc(100% - 200px);
-    }
-    .tool-panel{
-        width: 200px;
-    }
-    .tool-img,.tool-img-holder{
-        width: 50px;
-        height: 50px;
-    }
-    .tool-desc-holder{
-        width: calc(100% - 50px);
-        height: 50px;
-    }
-    .tool-desc{
-        font-size: 1.1rem;
-    }
-
-    .text-panel{
-        height: 120px;
-    }
-    .work-area{
-        height: calc(100% - 190px);
-    }
-}
-
-@media (max-width: 1023px){
-
-    .title-mode{
-        font-size: 1rem;
-    }
-    .mode-tool-title{
-        font-size: 1rem;
-    }
-    .finish{
-        width: 100px;
-        font-size: 1rem;
-    }
-    .curr-mode{
-        width: 100px;
-        font-size: 1rem;
-    }
-    .alert{
-        font-size: 1rem;
-    }
-}
 
 /* STACK */
 
@@ -368,15 +344,94 @@ button{
 
 /* Text Icons */
 .icon{
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 .icon2{
-    width: 72px;
-    height: 24px;
+    width: 60px;
+    height: 20px;
 }
 
+@media (max-width: 1439px){
+    .icon{
+        width: 18px;
+        height: 18px;
+    }
+    .icon2{
+        width: 54px;
+        height: 18px;
+    }
+    .work-space{
+        width: calc(100% - 200px);
+    }
+    .tool-panel{
+        width: 200px;
+    }
+    .tool-img,.tool-img-holder{
+        width: 50px;
+        height: 50px;
+    }
+    .tool-desc-holder{
+        width: calc(100% - 50px);
+        height: 50px;
+    }
+    .tool-desc{
+        font-size: 1.1rem;
+    }
+
+    .text-panel{
+        height: 120px;
+    }
+    .work-area{
+        height: calc(100% - 190px);
+    }
+}
+
+@media (max-width: 1023px){
+    .icon{
+        width: 16px;
+        height: 16px;
+    }
+    .icon2{
+        width: 48px;
+        height: 16px;
+    }
+    .warn-form{
+        width: 80vw;
+        height: 50vh;
+    }
+    .title-mode{
+        font-size: 1rem;
+    }
+    .mode-tool-title{
+        font-size: 1rem;
+    }
+    .finish{
+        width: 100px;
+        font-size: 1rem;
+    }
+    .curr-mode{
+        width: 100px;
+        font-size: 1rem;
+    }
+    .alert{
+        font-size: 1rem;
+    }
+}
+
+
 @media (max-width: 767px){
+    .icon{
+        width: 14px;
+        height: 14px;
+    }
+    .icon2{
+        width: 42px;
+        height: 14px;
+    }
+    .tool-desc{
+        font-size: 0.8rem;
+    }
     .app{
         flex-direction: column;
     }
@@ -392,6 +447,7 @@ button{
     .stack-tool{
         display: flex;
         flex-direction: row;
+        height: 100%;
     }
     .tool{
         width: 150px;
