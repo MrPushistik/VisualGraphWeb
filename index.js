@@ -1645,6 +1645,8 @@ modeSwitcher.onclick = () => {
 
 document.querySelector(".finish").onclick = () => {
     
+    if (!isAction) return;
+    
     work.innerHTML = "";
 
     if (lastSave) currGraph = Graph.load(lastSave);
