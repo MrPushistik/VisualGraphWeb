@@ -3,13 +3,19 @@ let currGraph = new Graph();
 
 const save = () => {
     let save = currGraph.save();
-    localStorage.setItem("G", JSON.stringify(save));
+    if (save) localStorage.setItem("G", JSON.stringify(save));
     return save;
 }
 
 window.onunload = () => {
     if (!isAction) save();
 }
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") {
+        if (modeSwitcher.value === "AUTO" && !player.isPaused) modeElem.querySelector(".play").click();
+    }
+});
 
 window.onload = () => {
     let res = localStorage.getItem("G");
@@ -32,7 +38,7 @@ function getCoords(e) {
 let tools = [
     {
         name: "Курсор", 
-        desc: "клик левой кнопкой мыши - выделить. двойной клик левой кнопкой мыши по ребру/ дуге - изменить вес. клик правой кнопкой мыши - удалить выделенное", 
+        desc: "ЛКM (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) - выделить. Двойной ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'><img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по ребру/дуге - изменить вес. ПКМ (<img class='icon' alt='rcm' src='Icons/MouseRight.svg'>) - удалить выделенное", 
         src: "Icons/Cursor.svg", 
         action: (e) => {
             if (isAction) return;
@@ -40,7 +46,7 @@ let tools = [
     },
     {
         name: "Вершина", 
-        desc: "клик левой кнопкой мыши по пустому пространству - создать вершину", 
+        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по пустому месту - создать вершину", 
         src: "Icons/V.svg", 
         action: (e) => {
             if (isAction) return;
@@ -56,7 +62,7 @@ let tools = [
     },
     {
         name: "Ребро", 
-        desc: "клик левой кнопкой мыши по первой, затем по второй вершине - создать ребро", 
+        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по первой вершине, затем по второй вершине - создать ребро", 
         src: "Icons/E.svg",
         action: (e) => {
 
@@ -91,7 +97,7 @@ let tools = [
     },
     {
         name: "Дуга", 
-        desc: "клик левой кнопкой мыши по первой, затем по второй вершине - создать дугу", 
+        desc: "ЛКМ (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) по первой вершине, затем по второй вершине - создать дугу", 
         src: "Icons/P.svg",
         action: (e) => {
 
@@ -125,7 +131,7 @@ let tools = [
     },
     {
         name: "Обход в ширину", 
-        desc: "Выбор начальной вершины левой кнопкой мыши - начать выполнение алгоритма BFS. Чтобы завершить работу с алгоритмом - нажать кнопку 'Завершить' ", 
+        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Обход в ширину'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
         src: "Icons/BFS.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
@@ -215,7 +221,7 @@ let tools = [
     },
     {
         name: "Обход в глубину", 
-        desc: "Выбор начальной вершины левой кнопкой мыши - начать выполнение алгоритма DFS. Чтобы завершить работу с алгоритмом - нажать кнопку 'Завершить' ", 
+        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Обход в глубину'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
         src: "Icons/DFS.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
@@ -334,8 +340,8 @@ let tools = [
     },
     {
         name: "Алгоритм Дейкстры", 
-        desc: "Выбор начальной вершины левой кнопкой мыши - начать выполнение алгоритма DFS. Чтобы завершить работу с алгоритмом - нажать кнопку 'Завершить' ", 
-        src: "Icons/BFS.svg", 
+        desc: "Выбрать начальную (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) и конечную (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) вершины для запуска алгоритма поиска кратчайшего рассотяния 'Алгоритм Дейсткры'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        src: "Icons/MinPath.svg", 
         action: (e) => {
             
                 if (currSelected && lastSelected && 
@@ -511,8 +517,8 @@ let tools = [
     },
     {
         name: "Эйлеров цикл", 
-        desc: "", 
-        src: "Icons/BFS.svg", 
+        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Поиск эйлерова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        src: "Icons/Euler.svg", 
         action: (e) => {
             if (currGraph.Es.length == 0 || currGraph.Ps.length == 0){
                 if (currGraph.isConnected()){
@@ -561,10 +567,12 @@ let tools = [
 
                                 if (list[a].length == 0) {
                                     path.push(a);
-                                    after = "У текущей вершины нет ребер, по которым можно попасть в другие вершины. Запоминаем вершину " + currGraph.Vs[a].name;
+                                    after = "У текущей вершины нет ребер, по которым можно попасть в другие вершины. Добавляем ее к результату: ";
+                                    for (let i = 0; i < path.length; i++) after += currGraph.Vs[path[i]].name + "-";
+                                    after = after.substring(0, after.length-1);
                                     player.push(
                                         Step.getSteps([
-                                            new VertexSegment(currGraph.Vs[a], Colors.BLUE, Colors.YELLOW, null, null),
+                                            new VertexSegment(currGraph.Vs[a], stack.indexOf(a) === -1 ? Colors.BLUE : Colors.PURPLE, Colors.YELLOW, null, null),
                                             new TextSegment(myAlert, after, before),
                                         ])
                                     )
@@ -614,9 +622,9 @@ let tools = [
                             after = "Поиск завершен. Эйлеров цикл: ";
                             for (let i = 0 ; i < path.length - 1; i++){
                                 toChange.push(new EdgeSegment(edgeAccess[path[i+1]][path[i]], Colors.RED, Colors.GRAY, null, null));
-                                after += currGraph.Vs[path[path.length - i - 1]].name + "-"
+                                after += currGraph.Vs[path[i]].name + "-"
                             }
-                            after += currGraph.Vs[path[0]].name;
+                            after += currGraph.Vs[path[path.length - 1]].name;
                             
                             toChange.push(new TextSegment(myAlert, after, before));
 
@@ -796,8 +804,8 @@ let tools = [
     // },
     {
         name: "Гамильтонов цикл", 
-        desc: "", 
-        src: "Icons/BFS.svg", 
+        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма 'Поиск гамильтонова цикла'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        src: "Icons/Hamilton.svg", 
         action: (e) => {
                 if (currSelected && currSelected instanceof V){
 
@@ -861,18 +869,21 @@ let tools = [
                         }
 
                         after = "Извлекаем вершину из стека. Текущая вершина = " + currGraph.Vs[curr].name + getStack(stack, "pop", curr);
+                        let toChange4 = [
+                            new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, Colors.PURPLE, null, null),
+                        ]
+                        if (flag)  toChange4 = [];
                         player.push(
-                            Step.getSteps([
-                                new VertexSegment(currGraph.Vs[curr], Colors.YELLOW, Colors.PURPLE, null, null),
+                            Step.getSteps(toChange4.concat([
                                 new TextSegment(myAlert, after, before),
-                            ])
+                            ]))
                         )
                         before = after;
 
                         let si = 0;
                         let toChange = [];
                         if (flag) {
-                            after = "Просмотр смежных непосещенный вершин для вершины " + currGraph.Vs[curr].name + " был прерван. Возобновляем просмотр. Уже просмотренные вершины: ";  
+                            after = "Просмотр смежных непосещенный вершин для вершины " + currGraph.Vs[curr].name + " ранее был прерван. Возобновляем просмотр. Уже просмотренные вершины: ";  
                             while (true){
                                 if (!visited[list[curr][si]]) {
                                     after += currGraph.Vs[list[curr][si]].name + ", ";
@@ -906,7 +917,7 @@ let tools = [
 
                             if (!visited[i]){
 
-                                after = "Найдена смежная непосещенная вершина " + currGraph.Vs[i].name + ". Временно прерываем просмотр соседей вершины для " + currGraph.Vs[curr].name + ". Возвращаем текущую вершину в стек. " + getStack(stack, "push", curr);
+                                after = "Найдена смежная непосещенная вершина " + currGraph.Vs[i].name + ". Временно прерываем просмотр смежных непосещенных вершин для вершины " + currGraph.Vs[curr].name + ". Возвращаем текущую вершину в стек. " + getStack(stack, "push", curr);
                                 player.push(
                                     Step.getSteps([
                                         new VertexSegment(currGraph.Vs[i], Colors.PURPLE, Colors.GREEN, null, null),
@@ -948,7 +959,7 @@ let tools = [
                             last = curr;
                             visited[curr] = false;
 
-                            after = "Просмотр соседей вершины " +currGraph.Vs[curr].name + " завершен. Покидаем эту вершину.";
+                            after = "У вершины " + currGraph.Vs[curr].name + " больше нет непросмотренных смежных вершин. Покидаем эту вершину.";
                             player.push(
                                 Step.getSteps([
                                     new VertexSegment(currGraph.Vs[curr], Colors.GREEN, Colors.YELLOW, null, null),
@@ -963,8 +974,8 @@ let tools = [
     },
     {
         name: "Алгоритм Прима", 
-        desc: "", 
-        src: "Icons/BFS.svg", 
+        desc: "Выбрать начальную вершину (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма построения минимального остовного дерева 'Алгоритм Прима'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        src: "Icons/MST.svg", 
         action: (e) => {
             if (currGraph.Ps.length == 0){
                 if (currGraph.isConnected()){
@@ -1064,14 +1075,22 @@ let tools = [
                                 toChange.push(new VertexSegment(currGraph.Vs[painted[k]],Colors.GREEN, Colors.PURPLE, null, null))
                                 toChange.push(new EdgeSegment(edgeAccess[curr][painted[k]], Colors.GREEN, Colors.PURPLE, null, null))
                             }
+
+                            after = "Непосещенный смежных вершин больше нет.";
+                            player.push(
+                                Step.getSteps(toChange.concat([
+                                    new TextSegment(myAlert, after, before)
+                                ]))
+                            );
+                            before = after;
     
                             after = "Следующая вершина " + currGraph.Vs[next].name + ", так как ее присоединение требует минимальных затрат.";
                             player.push(
-                                Step.getSteps(toChange.concat([
+                                Step.getSteps([
                                     new VertexSegment(currGraph.Vs[curr], Colors.BLUE, Colors.YELLOW, null, null),
                                     new VertexSegment(currGraph.Vs[next], Colors.YELLOW, Colors.GREEN, null, null),
                                     new TextSegment(myAlert, after, before)
-                                ]))
+                                ])
                             );
                             before = after;
     
@@ -1115,8 +1134,8 @@ let tools = [
     },
     {
         name: "Алгоритм Форда-Фалкерсона", 
-        desc: "", 
-        src: "Icons/BFS.svg", 
+        desc: "Выбрать начальную вершину (исток) (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) и конечную вершину (сток) (<img class='icon' alt='lcm' src='Icons/MouseLeft.svg'>) для запуска алгоритма поиска максимального потока 'Алгоритм Форда-Фалкерсона'. Завершить работу с алгоритмом - кнопка 'Завершить' (<img class='icon2' alt='finish' src='Icons/Finish.svg'>).", 
+        src: "Icons/MaxFlow.svg", 
         action: (e) => {
                 if (currSelected && lastSelected && 
                     currSelected instanceof V && lastSelected instanceof V && 
@@ -1474,7 +1493,10 @@ let toolCreator = function(toolObj) {
         </div>
     `
     div.onclick = () => {
-        if (isAction) return;
+        if (isAction) {
+            warnWindow("Завершите работу с алгоритмом, чтобы использовать инструменты");
+            return;
+        }
 
         let last = document.querySelector(".selected-tool");
         if (last) last.classList.remove("selected-tool");
@@ -1496,7 +1518,7 @@ let saveTool = function() {
     div.innerHTML =
     `
         <div class="tool-img-holder">
-            <img class="tool-img" alt="сохранение" src="Icons/V.svg">
+            <img class="tool-img" alt="сохранение" src="Icons/Save.svg">
         </div>
 
         <div class="tool-desc-holder">
@@ -1504,7 +1526,10 @@ let saveTool = function() {
         </div>
     `
     div.onclick = () => {
-        if (isAction) return;
+        if (isAction) {
+            warnWindow("Завершите работу с алгоритмом, чтобы использовать инструменты");
+            return;
+        }
 
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currGraph.save()));
         let dlAnchorElem = document.createElement("a");
@@ -1521,7 +1546,7 @@ let loadTool = function() {
     div.innerHTML =
     `
         <div class="tool-img-holder">
-            <img class="tool-img" alt="загрузка" src="Icons/V.svg">
+            <img class="tool-img" alt="загрузка" src="Icons/Load.svg">
         </div>
 
         <div class="tool-desc-holder">
@@ -1535,7 +1560,10 @@ let loadTool = function() {
     let form = preLoadWindow();
 
     div.onclick = () => {
-        if (isAction) return;
+        if (isAction) {
+            warnWindow("Завершите работу с алгоритмом, чтобы использовать инструменты");
+            return;
+        }
         
         form.querySelector(".accept").onclick = () => {getFile.click();}
         form.querySelector(".cancel").onclick = () => {form.remove();}
