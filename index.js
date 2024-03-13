@@ -246,7 +246,7 @@ let tools = [
                     let visited = new Array(currGraph.Vs.length).fill(false);
                     let queue = new Array();
 
-                    let before = "";
+                    let before = "Алгоритм запущен.";
                     let after = "Добавляем выбранную вершину в очередь. " + getQueue(queue, "push", start);
                     player.push(
                         Step.getSteps([
@@ -336,7 +336,7 @@ let tools = [
                     let visited = new Array(currGraph.Vs.length).fill(false);
                     let stack = new Array();
 
-                    let before = "";
+                    let before = "Алгоритм запущен.";
                     let after = "Добавляем выбранную вершину в стек. " + getStack(stack, "push", start);
                     player.push(
                         Step.getSteps([
@@ -484,7 +484,7 @@ let tools = [
                     currGraph.Vs[source].setColor(Colors.YELLOW);
                     currGraph.Vs[sink].setColor(Colors.RED);
 
-                    let before = "";
+                    let before = "Алгоритм запущен.";
                     let after = "Присваиваем стартовой вершине метку 0, остальным - ∞.";
                     player.push(
                         Step.getSteps([
@@ -624,7 +624,7 @@ let tools = [
                             let path = [];
 
                             let stack = new Array();
-                            let before = "";
+                            let before = "Алгоритм запущен.";
                             let after;
                             
                             after = "Добавляем выбранную вершину в стек." + getStack(stack, "push", start);
@@ -765,7 +765,7 @@ let tools = [
 
                     let stack = new Array();
 
-                    let before = "";
+                    let before = "Алгоритм запущен.";
                     let after = "Добавляем выбранную вершину в стек. " + getStack(stack, "push", start);
                     player.push(
                         Step.getSteps([
@@ -939,7 +939,7 @@ let tools = [
                             currGraph.Vs[i].setDesc("? ∞");
                         }
     
-                        let before = "";
+                        let before = "Алгоритм запущен.";
                         let after = "Присваиваем стартовой вершине метку " + currGraph.Vs[curr].name + " 0.";
                         player.push(
                             Step.getSteps([
@@ -1143,7 +1143,7 @@ let tools = [
 
                     let maxFlow = 0;
 
-                    let before = "";
+                    let before = "Алгоритм запущен.";
                     let after = "Устанавливаем начальный максимальный поток = 0. Введем для каждой дуги/ребра обозначение '←<обратная пропускная способность>  <прямая пропускная способность>→'";
                     player.push(
                         Step.getSteps([
