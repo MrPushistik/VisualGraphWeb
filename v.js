@@ -46,11 +46,8 @@ class V {
         elem.querySelector(".c-text").setAttribute("text-anchor", "middle");
         elem.querySelector(".c-text").textContent = name;
 
-        elem.querySelector(".rect").setAttribute("x", x - 25);
-        elem.querySelector(".rect").setAttribute("y", y + 25);
-
         elem.querySelector(".r-text").setAttribute("x", x);
-        elem.querySelector(".r-text").setAttribute("y", y + dy + 37.5);
+        elem.querySelector(".r-text").setAttribute("y", y + dy + 40);
         elem.querySelector(".r-text").setAttribute("text-anchor", "middle");
         elem.querySelector(".r-text").textContent = text;
 
@@ -70,12 +67,10 @@ class V {
     }
 
     showTables(){
-        this.elem.querySelector(".rect").setAttribute("visibility", "visible");
         this.elem.querySelector(".r-text").setAttribute("visibility", "visible");
     }
 
     hideTables(){
-        this.elem.querySelector(".rect").setAttribute("visibility", "hidden");
         this.elem.querySelector(".r-text").setAttribute("visibility", "hidden");
     }
 }

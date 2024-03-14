@@ -971,11 +971,22 @@ let tools = [
                                         painted.push(j);
     
                                         if (matrix[curr][j] < d[j][0]){        
+
+                                            let msg1, msg2;
+                                            if (d[j][0] === Infinity) {
+                                                msg1 = "∞";
+                                                msg2 = "? ∞";
+                                            }
+                                            else {
+                                                msg1 = d[j][0];
+                                                msg2 = currGraph.Vs[d[j][1]].name + " " + d[j][0];
+                                            }
+
     
-                                            after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " < " + (d[j][0] === Infinity ? "∞" : d[j][0]) + " => обновляем значение метки.";
+                                            after = "Рассмотрим вершину " + currGraph.Vs[j].name + ": " + matrix[curr][j] + " < " + msg1 + " => обновляем значение метки.";
                                             player.push(
                                                 Step.getSteps([
-                                                    new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, currGraph.Vs[curr].name + " " + matrix[curr][j], d[j][0] === Infinity ? d[j][1] + " ∞" : d[j][1] + " " + d[j][0]),
+                                                    new VertexSegment(currGraph.Vs[j], Colors.PURPLE, Colors.GREEN, currGraph.Vs[curr].name + " " + matrix[curr][j], msg2),
                                                     new EdgeSegment(edgeAccess[curr][j], Colors.PURPLE, Colors.GREEN, null, null),
                                                     new TextSegment(myAlert, after, before)
                                                 ])
@@ -1097,18 +1108,41 @@ let tools = [
                     sinkV.setColor(Colors.RED);
 
                     let matrix = currGraph.getMatrix();
-                    let edgeAccess = currGraph.getAdvancedMatrix();
+
+                    let newPs = [];
+
+                    for (let i = currGraph.Ps.length - 1; i>=0; i--){
+                        let p = currGraph.Ps[i];
+                        let a = currGraph.Vs.indexOf(p.v1);
+                        let b = currGraph.Vs.indexOf(p.v2);
+                        
+                        if (matrix[b][a] === 0){
+                            let p = new P(0, currGraph.Vs[b], currGraph.Vs[a]);
+                            p.setColor(Colors.GRAY);
+                            newPs.push(p);
+                        }
+                    }
+
+                    for (let i = currGraph.Es.length - 1; i>=0; i--){
+                        let e = currGraph.Es[i];
+                        let v = e.value;
+                        let a = currGraph.Vs.indexOf(e.v1);
+                        let b = currGraph.Vs.indexOf(e.v2);
+
+                        currGraph.deleteE(e);
+
+                        newPs.push(new P(v, currGraph.Vs[a], currGraph.Vs[b]));
+                        newPs.push(new P(v, currGraph.Vs[b], currGraph.Vs[a]));
+                    }
+
+                    for (let i = 0; i < newPs.length; i++){
+                        work.appendChild(newPs[i].elem);
+                        currGraph.Ps.push(newPs[i]);
+                    }
 
                     for (let i = 0; i < currGraph.Vs.length; i++){
-                        for (let j = 0; j < currGraph.Vs.length; j++){
-                            elem = edgeAccess[i][j];
-                            if (elem instanceof E){
-                                elem.setDesc("←" + matrix[i][j] + "  " + matrix[i][j] + "→");
-                            }
-                            else if (elem instanceof P){
-                                elem.setDesc("←0  " + matrix[i][j] + "→");
-                            }
-                        }
+                        currGraph.Vs[i].elem.remove();
+                        work.append(currGraph.Vs[i].elem);
                     }
 
                     const BSFforFF = (matrix, s, t) => {
@@ -1141,10 +1175,12 @@ let tools = [
                         return null;
                     }
 
+                    let edgeAccess = currGraph.getAdvancedMatrix();
+
                     let maxFlow = 0;
 
                     let before = "Алгоритм запущен.";
-                    let after = "Устанавливаем начальный максимальный поток = 0. Введем для каждой дуги/ребра обозначение '←<обратная пропускная способность>  <прямая пропускная способность>→'";
+                    let after = "Преобзразуем граф. Ребра представим в виде пар дуг одинакового веса. Непарным дугам добавим возвратные ребра веса 0. Изначально максимальный поток 0.";
                     player.push(
                         Step.getSteps([
                             new TextSegment(myAlert, after, before)
@@ -1156,7 +1192,7 @@ let tools = [
 
                     while(true){
 
-                        after = "Ищем путь от истока к стоку";
+                        after = "Ищем путь от истока к стоку.";
                         player.push(
                             Step.getSteps(toChange2.concat([
                                 new TextSegment(myAlert, after, before)
@@ -1182,20 +1218,20 @@ let tools = [
                             minList += matrix[parent[i]][i] + ",";
 
                             let edge = edgeAccess[parent[i]][i];
-                            if (!edge) edge = edgeAccess[i][parent[i]];
+                            //if (!edge) edge = edgeAccess[i][parent[i]];
 
                             toChange.push(new EdgeSegment(edge, Colors.RED, Colors.GREEN, null, null));
                             toChange.push(new VertexSegment(currGraph.Vs[parent[i]], Colors.RED, Colors.GREEN, null, null));
 
-                            toChange2.push(new EdgeSegment(edge, Colors.GREEN, Colors.RED, null, null));
                             toChange2.push(new VertexSegment(currGraph.Vs[parent[i]], Colors.GREEN, Colors.RED, null, null));
+
                             path += "-" + currGraph.Vs[parent[i]].name;
                         }
 
                         toChange2.pop();
                         toChange.pop();
 
-                        after = "Такой путь найден: " + path.split("").reverse().join("") + "Максимально возможный поток через этот тут равен: MIN(" + minList.substring(0, minList.length - 1) + ") = " + min + ".";
+                        after = "Такой путь найден: " + path.split("").reverse().join("") + ". Максимально возможный поток через этот тут равен: MIN(" + minList.substring(0, minList.length - 1) + ") = " + min + ".";
                         player.push(
                             Step.getSteps(toChange.concat([
                                 new TextSegment(myAlert, after, before)
@@ -1208,14 +1244,14 @@ let tools = [
                             matrix[parent[i]][i] -= min;
                             matrix[i][parent[i]] += min;
 
+                            let to = matrix[parent[i]][i];
+                            let from = matrix[i][parent[i]];
+                     
+                            toChange3.push(new EdgeSegment(edgeAccess[parent[i]][i], null, null, to, to + min));   
+                            toChange3.push(new EdgeSegment(edgeAccess[i][parent[i]], Colors.PURPLE, from - min === 0 ? Colors.GRAY : Colors.GREEN, from, from - min));  
                             
-                            let edgeA = edgeAccess[parent[i]][i];
-                            let edgeB = edgeAccess[i][parent[i]]; 
-                            
-                            if (!edgeA) 
-                                toChange3.push(new EdgeSegment(edgeB, null, null, "←"+matrix[parent[i]][i]+"  "+matrix[i][parent[i]]+"→",edgeB.desc));
-                            else
-                                toChange3.push(new EdgeSegment(edgeA, null, null, "←"+matrix[i][parent[i]]+"  "+matrix[parent[i]][i]+"→",edgeA.desc));
+                            toChange2.push(new EdgeSegment(edgeAccess[parent[i]][i], to === 0 ? Colors.GRAY : Colors.GREEN, Colors.RED, null, null));
+                            toChange2.push(new EdgeSegment(edgeAccess[i][parent[i]], from === 0 ? Colors.GRAY : Colors.GREEN, Colors.PURPLE, null, null))
                         }
 
                         after = "Уменьшаем прямую пропускную способность на " + min + ". Увеличиваем обратную пропускную способность на " + min + ".";
@@ -1227,7 +1263,7 @@ let tools = [
                         before = after;
 
                         maxFlow += min;
-                        after = "Увеличиваем максимальный поток на " + min + ". Текущий максимальный поток = " + maxFlow;
+                        after = "Увеличиваем максимальный поток на " + min + ". Текущий максимальный поток = " + maxFlow + ".";
                         player.push(
                             Step.getSteps([
                                 new TextSegment(myAlert, after, before)
@@ -1235,7 +1271,7 @@ let tools = [
                         );
                     }
 
-                    after = "Пути от истока к стоку нет. Максимальный поток = " + maxFlow;
+                    after = "Пути от истока к стоку нет. Максимальный поток " + maxFlow + ".";
                     player.push(
                         Step.getSteps(toChange2.concat([
                             new TextSegment(myAlert, after, before)

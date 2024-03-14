@@ -20,7 +20,7 @@ class P {
     createPath(v1, v2, color, text){
 
         let elem = path.cloneNode(true);
-        let h = 35;
+        let h = 20;
 
         elem.setAttribute("stroke", color.stroke);
         elem.setAttribute("fill", color.fill);
@@ -49,7 +49,7 @@ class P {
             X3 = Xc + dX3c;
             Y3 = - (dX21 / dY21) * dX3c + Yc;
 
-            let dX3ctxt = way * Math.sqrt( (16 * h * h / 20) / ( ((dX21 * dX21) / (dY21 * dY21)) + 1));
+            let dX3ctxt = way * Math.sqrt( (5 * h * h /4) / ( ((dX21 * dX21) / (dY21 * dY21)) + 1));
             X3txt = Xc + dX3ctxt;
             Y3txt = - (dX21 / dY21) * dX3ctxt + Yc;
 
@@ -64,7 +64,7 @@ class P {
         let dY23 = v2.y - Y3arr;
         let b = 20;
         let r = 20;
-        let c = 7;
+        let c = 5;
 
         let dX24 = Math.sqrt(((b + r) * (b + r)) / (1 + (dY23 * dY23) / (dX23 * dX23)));
         let dX25 = Math.sqrt((r * r) / (1 + (dY23 * dY23) / (dX23 * dX23)));

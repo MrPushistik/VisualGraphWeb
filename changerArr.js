@@ -21,10 +21,10 @@ class ChangerArr{
     invoke(){
         for (let i = 0; i < this.vertexColorArr.length; i++) {
             if (this.vertexColorArr && this.vertexColorArr[i]) this.vertexArr[i].setColor(this.vertexColorArr[i]);
-            if (this.vertexTextArr && this.vertexTextArr[i]) this.vertexArr[i].setDesc(this.vertexTextArr[i]);
+            if (this.vertexTextArr && this.vertexTextArr[i] !== null) this.vertexArr[i].setDesc(this.vertexTextArr[i]);
         }
         for (let i = 0; i < this.edgeColorArr.length; i++) {
-            if (this.edgeTextArr && this.edgeTextArr[i]) this.edgeArr[i].setDesc(this.edgeTextArr[i]);
+            if (this.edgeTextArr && this.edgeTextArr[i] !== null) this.edgeArr[i].setDesc(this.edgeTextArr[i]);
             if (this.edgeColorArr && this.edgeColorArr[i]) this.edgeArr[i].setColor(this.edgeColorArr[i]);
         }
         if (this.message){
