@@ -322,6 +322,7 @@ header{
     border-right: 0;
     display: flex;
     flex-direction: row;
+    align-items: center;
     color: rgb(153, 229, 78);
 }
 .queue {
@@ -333,6 +334,7 @@ header{
     border-left: 0;
     display: flex;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
     color: rgb(153, 229, 78);
 }
@@ -347,8 +349,8 @@ header{
     align-items: center;
 }
 .arrow{
-    height: 28px;
-    width: 28px;
+    height: 30px;
+    width: 30px;
     color: rgb(153, 229, 78);
     display: flex;
     justify-content: center;
@@ -514,5 +516,25 @@ header{
     .svg-scroller::-webkit-scrollbar{
         width: 4px;
         height: 4px;
+    }
+    .struct-wrap{
+        display: flex;
+        flex-direction: row;
+    }
+    .stack {
+        width: 168px;
+        height: 24px;
+    }
+    .queue {
+        width: 168px;
+        height: 24px;
+    }
+    .element{
+        height: 24px;
+        width: 24px;
+    }
+    .arrow{
+        height: 24px;
+        width: 24px;
     }
 }
