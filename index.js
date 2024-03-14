@@ -654,7 +654,7 @@ let tools = [
                                 if (list[a].length == 0) {
                                     path.push(a);
                                     after = "У текущей вершины нет ребер (дуг), по которым можно попасть в другие вершины. Добавляем ее в результат: ";
-                                    for (let i = 0; i < path.length; i++) after += currGraph.Vs[path[i]].name + "-";
+                                    for (let i = path.length - 1; i >= 0; i--) after += currGraph.Vs[path[i]].name + "-";
                                     after = after.substring(0, after.length-1) + ".";
                                     player.push(
                                         Step.getSteps([
@@ -706,11 +706,13 @@ let tools = [
 
                             let toChange = [];
                             after = "Поиск завершен. Эйлеров цикл: ";
+                            after += currGraph.Vs[path[0]].name;
+                            
                             for (let i = 0 ; i < path.length - 1; i++){
                                 toChange.push(new EdgeSegment(edgeAccess[path[i+1]][path[i]], Colors.RED, Colors.GRAY, null, null));
-                                after += currGraph.Vs[path[i]].name + "-"
+                                after += "-" + currGraph.Vs[path[path.length - 2 - i]].name;
                             }
-                            after += currGraph.Vs[path[path.length - 1]].name + ".";
+                            after += ".";
                             
                             toChange.push(new TextSegment(myAlert, after, before));
 
