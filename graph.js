@@ -172,7 +172,7 @@ class Graph{
                 let flow = 0;
                 for (let j = 0; j < this.Vs.length; j++){
                     if (edgeAccess[i][j]) flow--;
-                    else if (edgeAccess[j][i]) flow++;
+                    if (edgeAccess[j][i]) flow++;
                 }
                 if (flow !== 0) return false;
             }
