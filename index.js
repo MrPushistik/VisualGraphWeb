@@ -592,7 +592,7 @@ let tools = [
                         toChange.push(new EdgeSegment(edgeAccess[i][last], Colors.RED, Colors.GREEN, null, null));
                         toChange.push(new VertexSegment(currGraph.Vs[i], Colors.RED, Colors.BLUE, null, null));
     
-                        after = "Кратчайшее рассотяние между веришинами " + sourceV.name + " и " + sinkV.name + " равно " + d[sink] + ". Кратчайший путь: " + res.split("").reverse().join("") + ".";
+                        after = "Кратчайшее рассотяние между веришинами " + sourceV.name + " и " + sinkV.name + " равно " + d[sink] + ". Кратчайший путь: " + res.split("-").reverse().join("-") + ".";
                         toChange.push(new TextSegment(myAlert, after, before));
                         player.push(Step.getSteps(toChange));
 
